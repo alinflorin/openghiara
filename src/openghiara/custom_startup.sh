@@ -1,0 +1,1 @@
+/usr/bin/desktop_ready && true &
