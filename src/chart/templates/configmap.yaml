@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openghiara
+data:
+  custom_startup.sh: |
+    /usr/bin/desktop_ready && true &

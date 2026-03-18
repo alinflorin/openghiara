@@ -1,5 +1,4 @@
-environment: uat
-arch: arm64
+environment: oci
 persistence:
   size: 10Gi
 ingress:

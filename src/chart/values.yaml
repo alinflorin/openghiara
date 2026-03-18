@@ -1,5 +1,4 @@
 environment: dev
-arch: amd64
 resources: {}
 persistence:
   size: 1Gi
