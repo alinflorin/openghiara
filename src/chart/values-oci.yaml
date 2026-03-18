@@ -1,4 +1,5 @@
 environment: oci
+architecture: arm64
 persistence:
   size: 10Gi
 ingress:

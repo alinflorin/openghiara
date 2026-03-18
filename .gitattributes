@@ -1,1 +1,2 @@
 *.sh eol=lf
+src/openghiara/kasmvnc.yaml eol=lf

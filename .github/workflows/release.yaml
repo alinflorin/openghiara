@@ -5,6 +5,24 @@ on:
     types: [released]
 
 jobs:
+  docker:
+    if: ${{ github.event.release.target_commitish == 'main' }}
+    strategy:
+      matrix:
+        project: ['openghiara']
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+    uses: ./.github/workflows/reusable-docker-ci.yaml
+    with:
+      project: ${{ matrix.project }}
+      push: true
+      scan: false
+      version: ${{ github.ref_name }}
+    secrets: inherit
+
+
   helm:
     permissions:
       actions: read
@@ -19,7 +37,7 @@ jobs:
     secrets: inherit
 
   deploy:
-    needs: [helm]
+    needs: [docker, helm]
     strategy:
       matrix:
         environment: [oci]

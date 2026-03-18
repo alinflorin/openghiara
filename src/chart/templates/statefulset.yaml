@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: openghiara
-          image: kasmweb/core-ubuntu-jammy:1.18.0-rolling-daily
+          image: ghcr.io/alinflorin/openghiara-{{ .Values.architecture }}:{{ .Chart.AppVersion }}
           imagePullPolicy: IfNotPresent
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -28,25 +28,11 @@ spec:
               mountPath: /data
             - name: shm
               mountPath: /dev/shm
-            - name: configs
-              mountPath: /dockerstartup/vnc_startup.sh
-              subPath: vnc_startup.sh
-            - name: configs
-              mountPath: /dockerstartup/custom_startup.sh
-              subPath: custom_startup.sh
-            - name: configs
-              mountPath: /etc/kasmvnc/kasmvnc.yaml
-              subPath: kasmvnc.yaml
-
       volumes:
         - name: shm
           emptyDir:
             medium: Memory
             sizeLimit: 512Mi
-        - name: configs
-          configMap:
-            name: openghiara
-            defaultMode: 0755
   volumeClaimTemplates:
     - metadata:
         name: data
