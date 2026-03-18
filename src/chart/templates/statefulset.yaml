@@ -23,6 +23,13 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
+            - name: shm
+              mountPath: /dev/shm
+      volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 512Mi
   volumeClaimTemplates:
     - metadata:
         name: data
