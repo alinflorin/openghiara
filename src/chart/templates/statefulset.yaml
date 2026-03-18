@@ -19,6 +19,8 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
+            - name: SSL_ONLY
+              value: "0"
             - name: VNC_PW
               valueFrom:
                 secretKeyRef:
@@ -34,6 +36,7 @@ spec:
             - name: configs
               mountPath: /dockerstartup/custom_startup.sh
               subPath: custom_startup.sh
+
       volumes:
         - name: shm
           emptyDir:
