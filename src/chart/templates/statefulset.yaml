@@ -19,8 +19,6 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-            - name: SSL_ONLY
-              value: "0"
             - name: VNC_PW
               valueFrom:
                 secretKeyRef:
@@ -34,8 +32,14 @@ spec:
             - name: shm
               mountPath: /dev/shm
             - name: configs
+              mountPath: /dockerstartup/vnc_startup.sh
+              subPath: vnc_startup.sh
+            - name: configs
               mountPath: /dockerstartup/custom_startup.sh
               subPath: custom_startup.sh
+            - name: configs
+              mountPath: /etc/kasmvnc/kasmvnc.yaml
+              subPath: kasmvnc.yaml
 
       volumes:
         - name: shm
