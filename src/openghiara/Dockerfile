@@ -7,7 +7,6 @@ WORKDIR $HOME
 COPY ./README.md ./README.md
 COPY ./custom_startup.sh /dockerstartup/custom_startup.sh
 RUN chmod +x /dockerstartup/custom_startup.sh
-COPY ./kasm_default_profile.sh /dockerstartup/kasm_default_profile.sh
 COPY ./vnc_startup.sh /dockerstartup/vnc_startup.sh
 COPY ./kasmvnc.yaml /etc/kasmvnc/kasmvnc.yaml
 
