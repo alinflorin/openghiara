@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Set up Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@v4.3.0
         with:
           version: latest
 
@@ -35,7 +35,7 @@ jobs:
 
       - name: Substitute Secrets Action
         if: ${{ inputs.uninstall == false }}
-        uses: faradaytrs/substitute-secrets-action@2.6
+        uses: faradaytrs/substitute-secrets-action@2.7
         with:
           input: "src/chart/values-${{ inputs.env }}.yaml"
           substitutionRegex: \$\{([A-Z0-9_]+)\}
@@ -43,7 +43,7 @@ jobs:
           throwOnDataMissing: false
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         if: ${{ inputs.uninstall == false }}
         with:
           registry: ghcr.io
