@@ -9,4 +9,3 @@ ingress:
   className: ""
   annotations: {}
   tls: []
-vncPw: null

@@ -19,11 +19,8 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-            - name: VNC_PW
-              valueFrom:
-                secretKeyRef:
-                  name: openghiara
-                  key: VNC_PW
+            - name: VNCOPTIONS
+              value: "-disableBasicAuth"
           ports:
             - containerPort: 6901
           volumeMounts:
