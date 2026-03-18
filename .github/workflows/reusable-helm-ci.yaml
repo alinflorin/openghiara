@@ -1,0 +1,87 @@
+name: Reusable Helm CI
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+      push:
+        type: boolean
+        required: true
+      scan:
+        type: boolean
+        required: true
+
+env:
+  GHCR_ORG: ghcr.io/alinflorin
+
+jobs:
+  helm:
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+
+    steps:
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: latest
+          
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Cache Helm dependencies
+        uses: actions/cache@v5
+        with:
+          path: src/chart/charts
+          key: helm-deps-${{ runner.os }}-${{ hashFiles('src/chart/Chart.lock') }}
+          restore-keys: |
+            helm-deps-${{ runner.os }}-
+
+      - name: Update Helm dependencies
+        run: |
+          echo "Updating Helm dependencies..."
+          helm dependency update ./src/chart
+
+      - name: Lint Helm chart
+        run: |
+          echo "Linting Helm chart..."
+          helm lint ./src/chart
+
+      - name: Template Helm chart
+        run: |
+          echo "Rendering Helm chart templates..."
+          helm template ./src/chart
+
+      - name: Package Helm chart
+        if: ${{ inputs.push == false }}
+        run: |
+          echo "Packaging Helm chart..."
+          helm package ./src/chart --destination ./src/chart/dist
+
+      - name: Package Helm chart with version
+        if: ${{ inputs.push == true }}
+        run: helm package src/chart --destination src/chart/dist --version ${{ inputs.version }} --app-version ${{ inputs.version }} 
+
+      - name: List packaged chart
+        run: |
+          echo "Packaged chart(s):"
+          ls -l ./src/chart/dist
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        if: ${{ inputs.push == true }}
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Helm chart to GHCR
+        if: ${{ inputs.push == true }}
+        run: helm push src/chart/dist/*.tgz oci://$GHCR_ORG/charts

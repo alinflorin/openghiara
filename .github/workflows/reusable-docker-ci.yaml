@@ -1,0 +1,57 @@
+name: Reusable Docker CI
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+      push:
+        type: boolean
+        required: true
+      scan:
+        type: boolean
+        required: true
+
+jobs:
+  docker:
+    strategy:
+      matrix:
+        platform: ['linux/arm64']
+
+    runs-on: ${{ matrix.platform == 'linux/amd64' && 'ubuntu-latest' || 'ubuntu-24.04-arm' }}
+
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        if: ${{ inputs.push == true }}
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and cache Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src/${{ inputs.project }}
+          platforms: ${{ matrix.platform }}
+          tags: ${{ inputs.push == true && 'ghcr.io/alinflorin/' || '' }}${{ inputs.project }}-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}:${{ inputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: VERSION=${{ inputs.version }}
+          load: true
+          push: ${{ inputs.push }}

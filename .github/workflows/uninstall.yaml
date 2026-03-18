@@ -1,0 +1,20 @@
+name: Manual Uninstall
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select the environment to uninstall"
+        required: true
+        type: choice
+        options:
+          - oci
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/reusable-deploy.yaml
+    with:
+      env: ${{ inputs.environment }}
+      version: '-'
+      uninstall: true
+    secrets: inherit

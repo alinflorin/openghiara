@@ -1,0 +1,27 @@
+name: Chart CI
+
+on:
+  push:
+    branches:
+      - main
+    paths: 
+      - src/chart/**
+
+  pull_request:
+    branches:
+      - main
+    paths: 
+      - src/chart/**
+
+jobs:
+  helm:
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+    uses: ./.github/workflows/reusable-helm-ci.yaml
+    with:
+      push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      scan: true
+      version: 0.0.0-${{ github.sha }}
+    secrets: inherit

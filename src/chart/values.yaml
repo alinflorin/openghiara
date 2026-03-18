@@ -1,0 +1,12 @@
+environment: dev
+arch: amd64
+resources: {}
+persistence:
+  size: 1Gi
+  storageClass: ""
+ingress:
+  enabled: false
+  host: openghiara.example.com
+  className: ""
+  annotations: {}
+  tls: []

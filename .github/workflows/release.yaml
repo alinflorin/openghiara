@@ -1,0 +1,53 @@
+name: Release - Build Push Deploy
+
+on:
+  release:
+    types: [released]
+
+env:
+  GHCR_ORG: ghcr.io/alinflorin
+
+jobs:
+  docker:
+    if: ${{ github.event.release.target_commitish == 'main' }}
+    strategy:
+      matrix:
+        project: ['openghiara']
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+    uses: ./.github/workflows/reusable-docker-ci.yaml
+    with:
+      project: ${{ matrix.project }}
+      push: true
+      scan: false
+      version: ${{ github.ref_name }}
+    secrets: inherit
+
+
+  helm:
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+    if: ${{ github.event.release.target_commitish == 'main' }}
+    uses: ./.github/workflows/reusable-helm-ci.yaml
+    with:
+      push: true
+      scan: false
+      version: ${{ github.ref_name }}
+    secrets: inherit
+
+  deploy:
+    needs: [docker, helm]
+    strategy:
+      matrix:
+        environment: [oci]
+    if: ${{ github.event.release.target_commitish == 'main' }}
+    uses: ./.github/workflows/reusable-deploy.yaml
+    with:
+      env: ${{ matrix.environment }}
+      version: ${{ github.ref_name }}
+      uninstall: false
+    secrets: inherit

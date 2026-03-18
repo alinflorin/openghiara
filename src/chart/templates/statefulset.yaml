@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: openghiara
+spec:
+  selector:
+    matchLabels:
+      app: openghiara
+  serviceName: openghiara
+  template:
+    metadata:
+      labels:
+        app: openghiara
+    spec:
+      containers:
+        - name: openghiara
+          image: ghcr.io/alinflorin/openghiara-{{ .Values.arch }}:{{ .Chart.AppVersion }}
+          imagePullPolicy: IfNotPresent
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        {{- if .Values.persistence.storageClass }}
+        storageClassName: {{ .Values.persistence.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size }}
