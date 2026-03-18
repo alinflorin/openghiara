@@ -13,6 +13,8 @@ data:
         require_ssl: false
       udp:
         public_ip: 127.0.0.1
+    authentication:
+      enabled: false
     runtime_configuration:
       allow_override_standard_vnc_server_settings: true
       allow_override_list:
