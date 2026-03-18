@@ -19,7 +19,7 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           ports:
-            - containerPort: 8080
+            - containerPort: 6901
           volumeMounts:
             - name: data
               mountPath: /data
