@@ -20,7 +20,7 @@ jobs:
   docker:
     strategy:
       matrix:
-        platform: ['linux/arm64']
+        platform: ['linux/arm64', 'linux/amd64']
 
     runs-on: ${{ matrix.platform == 'linux/amd64' && 'ubuntu-latest' || 'ubuntu-24.04-arm' }}
 
