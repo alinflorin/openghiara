@@ -18,6 +18,12 @@ spec:
           imagePullPolicy: IfNotPresent
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: VNC_PW
+              valueFrom:
+                secretKeyRef:
+                  name: openghiara
+                  key: VNC_PW
           ports:
             - containerPort: 6901
           volumeMounts:

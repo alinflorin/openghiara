@@ -12,3 +12,4 @@ ingress:
     - secretName: openghiara-tls
       hosts:
         - openghiara.alinflorin.isroot.in
+vncPw: ${VNC_PW}
