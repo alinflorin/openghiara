@@ -25,5 +25,5 @@ spec:
               service:
                 name: openghiara
                 port:
-                  number: 80
+                  number: 6901
 {{- end }}

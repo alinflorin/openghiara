@@ -8,6 +8,9 @@ ingress:
   className: "traefik"
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/service.serversscheme: https
+    traefik.ingress.kubernetes.io/service.serverstransport: insecure@internal
   tls:
     - secretName: openghiara-tls
       hosts:

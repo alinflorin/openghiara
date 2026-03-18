@@ -6,5 +6,5 @@ spec:
   selector:
     app: openghiara
   ports:
-  - port: 80
+  - port: 6901
     targetPort: 6901
