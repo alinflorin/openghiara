@@ -25,7 +25,7 @@ spec:
             - containerPort: 6901
           volumeMounts:
             - name: data
-              mountPath: /data
+              mountPath: /home/kasm-user
             - name: shm
               mountPath: /dev/shm
             - name: configs
