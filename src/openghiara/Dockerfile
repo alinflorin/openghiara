@@ -1,4 +1,4 @@
-FROM kasmweb/core-ubuntu-jammy:1.18.0-rolling-daily
+FROM kasmweb/core-ubuntu-noble:1.18.0-rolling-weekly
 USER root
 ENV HOME /home/kasm-default-profile
 ENV STARTUPDIR /dockerstartup
