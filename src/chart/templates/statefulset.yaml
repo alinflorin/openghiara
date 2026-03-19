@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: openghiara
-          image: kasmweb/core-ubuntu-jammy:1.18.0-rolling-daily
+          image: kasmweb/core-ubuntu-noble:1.18.0-rolling-weekly
           imagePullPolicy: IfNotPresent
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
