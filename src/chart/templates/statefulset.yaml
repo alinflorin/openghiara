@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: openghiara
+  name: {{ include "openghiara.fullname" . }}
 spec:
   selector:
     matchLabels:
-      app: openghiara
-  serviceName: openghiara
+      app: {{ include "openghiara.fullname" . }}
+  serviceName: {{ include "openghiara.fullname" . }}
   template:
     metadata:
       labels:
-        app: openghiara
+        app: {{ include "openghiara.fullname" . }}
     spec:
       containers:
-        - name: openghiara
+        - name: {{ include "openghiara.fullname" . }}
           image: kasmweb/core-ubuntu-noble:1.18.0-rolling-weekly
           imagePullPolicy: IfNotPresent
           resources:
@@ -45,7 +45,7 @@ spec:
             sizeLimit: 512Mi
         - name: configs
           configMap:
-            name: openghiara
+            name: {{ include "openghiara.fullname" . }}
             defaultMode: 0755
   volumeClaimTemplates:
     - metadata:

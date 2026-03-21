@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: openghiara
+  name: {{ include "openghiara.fullname" . }}
 data:
   custom_startup.sh: |
     /usr/bin/desktop_ready && /usr/bin/xfce4-terminal &
