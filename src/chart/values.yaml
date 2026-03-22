@@ -12,3 +12,5 @@ ingress:
   className: ""
   annotations: {}
   tls: []
+userScript: |
+  echo Hi
