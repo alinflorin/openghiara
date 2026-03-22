@@ -57,7 +57,7 @@
       export PATH="/home/kasm-user/Software/nodejs/bin:$PATH"
       PLAYWRIGHT_BROWSERS_PATH=/home/kasm-user/Software/chromium npx -y playwright install chromium
 
-      CHROMIUM_BIN=$(find /home/kasm-user/Software/chromium -name "chrome" -o -name "chromium" | head -1)
+      CHROMIUM_BIN=$(find /home/kasm-user/Software/chromium -path "*/chrome-linux/chrome" -type f | head -1)
       CHROMIUM_DIR=$(dirname "$CHROMIUM_BIN")
 
       if ! grep -q "Software/chromium" /home/kasm-user/.bashrc; then
