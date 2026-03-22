@@ -1,8 +1,9 @@
     mkdir -p /home/kasm-user/.markers
     mkdir -p /home/kasm-user/Software
 
+    ARCH=$(uname -m)
+
     if [ ! -f /home/kasm-user/.markers/node ]; then
-      ARCH=$(uname -m)
       case "$ARCH" in
         x86_64)  NODE_ARCH="x64" ;;
         aarch64) NODE_ARCH="arm64" ;;
@@ -29,11 +30,19 @@
     fi
 
     if [ ! -f /home/kasm-user/.markers/nano ]; then
-      echo "Downloading nano..."
+      case "$ARCH" in
+        x86_64)  DEB_ARCH="amd64";  NANO_MIRROR="http://archive.ubuntu.com/ubuntu" ;;
+        aarch64) DEB_ARCH="arm64";  NANO_MIRROR="http://ports.ubuntu.com/ubuntu-ports" ;;
+        armv7l)  DEB_ARCH="armhf";  NANO_MIRROR="http://ports.ubuntu.com/ubuntu-ports" ;;
+        *)        echo "Unsupported architecture: $ARCH"; exit 1 ;;
+      esac
+
+      NANO_DEB=$(curl -sL "${NANO_MIRROR}/pool/main/n/nano/" | grep -oP "nano_[^\"]+_${DEB_ARCH}\.deb" | tail -1)
+      echo "Downloading nano (${NANO_DEB})..."
+      curl -sL "${NANO_MIRROR}/pool/main/n/nano/${NANO_DEB}" -o /tmp/nano.deb
       mkdir -p /home/kasm-user/Software/nano
-      apt-get download nano 2>/dev/null && \
-        dpkg-deb -x nano_*.deb /home/kasm-user/Software/nano && \
-        rm -f nano_*.deb
+      dpkg-deb -x /tmp/nano.deb /home/kasm-user/Software/nano
+      rm /tmp/nano.deb
 
       if ! grep -q "Software/nano" /home/kasm-user/.bashrc; then
         echo 'export PATH="/home/kasm-user/Software/nano/usr/bin:$PATH"' >> /home/kasm-user/.bashrc
