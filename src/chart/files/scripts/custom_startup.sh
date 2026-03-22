@@ -29,29 +29,6 @@
       echo "Node.js setup complete."
     fi
 
-    if [ ! -f /home/kasm-user/.markers/nano ]; then
-      case "$ARCH" in
-        x86_64)  DEB_ARCH="amd64";  NANO_MIRROR="http://archive.ubuntu.com/ubuntu" ;;
-        aarch64) DEB_ARCH="arm64";  NANO_MIRROR="http://ports.ubuntu.com/ubuntu-ports" ;;
-        armv7l)  DEB_ARCH="armhf";  NANO_MIRROR="http://ports.ubuntu.com/ubuntu-ports" ;;
-        *)        echo "Unsupported architecture: $ARCH"; exit 1 ;;
-      esac
-
-      NANO_DEB=$(curl -sL "${NANO_MIRROR}/pool/main/n/nano/" | grep -oP "nano_[^\"]+_${DEB_ARCH}\.deb" | tail -1)
-      echo "Downloading nano (${NANO_DEB})..."
-      curl -sL "${NANO_MIRROR}/pool/main/n/nano/${NANO_DEB}" -o /tmp/nano.deb
-      mkdir -p /home/kasm-user/Software/nano
-      dpkg-deb -x /tmp/nano.deb /home/kasm-user/Software/nano
-      rm /tmp/nano.deb
-
-      if ! grep -q "Software/nano" /home/kasm-user/.bashrc; then
-        echo 'export PATH="/home/kasm-user/Software/nano/usr/bin:$PATH"' >> /home/kasm-user/.bashrc
-      fi
-
-      touch /home/kasm-user/.markers/nano
-      echo "nano setup complete."
-    fi
-
     if [ ! -f /home/kasm-user/.markers/python ]; then
       case "$ARCH" in
         x86_64)  PYTHON_ARCH="x86_64-unknown-linux-gnu" ;;
