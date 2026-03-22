@@ -52,4 +52,27 @@
       echo "nano setup complete."
     fi
 
+    if [ ! -f /home/kasm-user/.markers/python ]; then
+      case "$ARCH" in
+        x86_64)  PYTHON_ARCH="x86_64-unknown-linux-gnu" ;;
+        aarch64) PYTHON_ARCH="aarch64-unknown-linux-gnu" ;;
+        *)        echo "Unsupported architecture for Python: $ARCH"; exit 1 ;;
+      esac
+
+      PYTHON_URL=$(curl -sL "https://api.github.com/repos/indygreg/python-build-standalone/releases/latest" \
+        | grep -oP '"browser_download_url": "\Khttps://[^"]+cpython-3\.14[^"]+'"${PYTHON_ARCH}"'-install_only\.tar\.gz(?=")')
+
+      echo "Downloading Python 3.14 (${PYTHON_ARCH})..."
+      curl -sL "$PYTHON_URL" -o /tmp/python.tar.gz
+      tar -xf /tmp/python.tar.gz -C /home/kasm-user/Software/
+      rm /tmp/python.tar.gz
+
+      if ! grep -q "Software/python" /home/kasm-user/.bashrc; then
+        echo 'export PATH="/home/kasm-user/Software/python/bin:$PATH"' >> /home/kasm-user/.bashrc
+      fi
+
+      touch /home/kasm-user/.markers/python
+      echo "Python 3.14 setup complete."
+    fi
+
     /usr/bin/desktop_ready && /usr/bin/xfce4-terminal &
