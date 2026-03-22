@@ -11,6 +11,8 @@ spec:
     metadata:
       labels:
         app: {{ include "openghiara.fullname" . }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
       containers:
         - name: {{ include "openghiara.fullname" . }}
