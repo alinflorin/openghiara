@@ -9,9 +9,9 @@
         *)        echo "Unsupported architecture: $ARCH"; exit 1 ;;
       esac
 
-      NODE_VERSION=$(curl -sL https://nodejs.org/dist/latest/ | grep -oP 'node-v\K[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+      NODE_VERSION=$(curl -sL https://nodejs.org/dist/latest-v24.x/ | grep -oP 'node-v\K[0-9]+\.[0-9]+\.[0-9]+' | head -1)
       NODE_FILENAME="node-v${NODE_VERSION}-linux-${NODE_ARCH}"
-      NODE_URL="https://nodejs.org/dist/latest/${NODE_FILENAME}.tar.xz"
+      NODE_URL="https://nodejs.org/dist/latest-v24.x/${NODE_FILENAME}.tar.xz"
 
       mkdir -p /home/kasm-user/Software
 
