@@ -2,8 +2,6 @@
     mkdir -p /home/kasm-user/Software
 
     ARCH=$(uname -m)
-    APT_MIRROR="http://ro.archive.ubuntu.com/ubuntu"
-    APT_PORTS_MIRROR="http://mirrors.lug.ro/ubuntu-ports"
 
     if [ ! -f /home/kasm-user/.markers/node ]; then
       case "$ARCH" in
@@ -33,9 +31,9 @@
 
     if [ ! -f /home/kasm-user/.markers/nano ]; then
       case "$ARCH" in
-        x86_64)  DEB_ARCH="amd64";  NANO_MIRROR="$APT_MIRROR" ;;
-        aarch64) DEB_ARCH="arm64";  NANO_MIRROR="$APT_PORTS_MIRROR" ;;
-        armv7l)  DEB_ARCH="armhf";  NANO_MIRROR="$APT_PORTS_MIRROR" ;;
+        x86_64)  DEB_ARCH="amd64";  NANO_MIRROR="http://archive.ubuntu.com/ubuntu" ;;
+        aarch64) DEB_ARCH="arm64";  NANO_MIRROR="http://ports.ubuntu.com/ubuntu-ports" ;;
+        armv7l)  DEB_ARCH="armhf";  NANO_MIRROR="http://ports.ubuntu.com/ubuntu-ports" ;;
         *)        echo "Unsupported architecture: $ARCH"; exit 1 ;;
       esac
 
@@ -75,30 +73,6 @@
 
       touch /home/kasm-user/.markers/python
       echo "Python 3.14 setup complete."
-    fi
-
-    if [ ! -f /home/kasm-user/.markers/chromium ]; then
-      case "$ARCH" in
-        x86_64)  DEB_ARCH="amd64";  CHROMIUM_MIRROR="$APT_MIRROR" ;;
-        aarch64) DEB_ARCH="arm64";  CHROMIUM_MIRROR="$APT_PORTS_MIRROR" ;;
-        armv7l)  DEB_ARCH="armhf";  CHROMIUM_MIRROR="$APT_PORTS_MIRROR" ;;
-        *)        echo "Unsupported architecture: $ARCH"; exit 1 ;;
-      esac
-
-      CHROMIUM_DEB=$(curl -sL "${CHROMIUM_MIRROR}/pool/universe/c/chromium-browser/" \
-        | grep -oP "chromium-browser_[^\"]+_${DEB_ARCH}\.deb" | tail -1)
-      echo "Downloading Chromium (${CHROMIUM_DEB})..."
-      curl -sL "${CHROMIUM_MIRROR}/pool/universe/c/chromium-browser/${CHROMIUM_DEB}" -o /tmp/chromium.deb
-      mkdir -p /home/kasm-user/Software/chromium
-      dpkg-deb -x /tmp/chromium.deb /home/kasm-user/Software/chromium
-      rm /tmp/chromium.deb
-
-      if ! grep -q "Software/chromium" /home/kasm-user/.bashrc; then
-        echo 'export PATH="/home/kasm-user/Software/chromium/usr/bin:$PATH"' >> /home/kasm-user/.bashrc
-      fi
-
-      touch /home/kasm-user/.markers/chromium
-      echo "Chromium setup complete."
     fi
 
     /usr/bin/desktop_ready && /usr/bin/xfce4-terminal &
