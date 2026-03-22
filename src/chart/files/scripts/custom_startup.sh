@@ -52,4 +52,20 @@
       echo "Python 3.14 setup complete."
     fi
 
+    if [ ! -f /home/kasm-user/.markers/chromium ]; then
+      echo "Installing Chromium via Playwright..."
+      export PATH="/home/kasm-user/Software/nodejs/bin:$PATH"
+      PLAYWRIGHT_BROWSERS_PATH=/home/kasm-user/Software/chromium npx -y playwright install chromium
+
+      CHROMIUM_BIN=$(find /home/kasm-user/Software/chromium -name "chrome" -o -name "chromium" | head -1)
+      CHROMIUM_DIR=$(dirname "$CHROMIUM_BIN")
+
+      if ! grep -q "Software/chromium" /home/kasm-user/.bashrc; then
+        echo "export PATH=\"${CHROMIUM_DIR}:\$PATH\"" >> /home/kasm-user/.bashrc
+      fi
+
+      touch /home/kasm-user/.markers/chromium
+      echo "Chromium setup complete."
+    fi
+
     /usr/bin/desktop_ready && /usr/bin/xfce4-terminal &
