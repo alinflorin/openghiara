@@ -25,7 +25,9 @@ spec:
               value: "-disableBasicAuth"
           ports:
             - containerPort: 6901
+              name: vnc
             - containerPort: 9090
+              name: mcp
           volumeMounts:
             - name: data
               mountPath: /home/kasm-user
