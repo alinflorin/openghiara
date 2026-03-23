@@ -24,7 +24,7 @@ spec:
             - name: VNCOPTIONS
               value: "-disableBasicAuth"
             - name: INGRESS_HOST
-              value: {{ .Values.ingress.host | quote }}
+              value: 'https://{{ .Values.ingress.host }}'
           ports:
             - containerPort: 6901
               name: vnc
