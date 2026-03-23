@@ -6,3 +6,4 @@ ingress:
   className: "traefik"
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
+    traefik.ingress.kubernetes.io/router.middlewares: default-basic-auth@kubernetescrd
