@@ -2,6 +2,12 @@ mkdir -p /home/kasm-user/.markers
 mkdir -p /home/kasm-user/Software
 export PATH="/home/kasm-user/Software/nodejs/bin:/home/kasm-user/Software/uv/bin:$PATH"
 ARCH=$(uname -m)
+if [ ! -f /home/kasm-user/.markers/git ]; then
+  git config --global user.name "OpenGhiara"
+  git config --global user.email "openghiara@openghiara.ai"
+  touch /home/kasm-user/.markers/git
+  echo "Git setup complete."
+fi
 if [ ! -f /home/kasm-user/.markers/node ]; then
   case "$ARCH" in
     x86_64)  NODE_ARCH="x64" ;;
