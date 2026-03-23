@@ -47,6 +47,9 @@ spec:
             - name: configs
               mountPath: /etc/1mcp/mcp.json
               subPath: mcp.json
+            - name: configs
+              mountPath: /etc/1mcp/instructions-template.md
+              subPath: instructions-template.md
       volumes:
         - name: shm
           emptyDir:

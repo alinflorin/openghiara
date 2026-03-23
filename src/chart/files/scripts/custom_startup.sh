@@ -78,5 +78,5 @@ fi
 eval $(echo "" | gnome-keyring-daemon --unlock --daemonize --components=secrets 2>/dev/null)
 export GNOME_KEYRING_CONTROL GNOME_KEYRING_PID
 
-npx -y @1mcp/agent --config /etc/1mcp/mcp.json --port 9090 --host 0.0.0.0 -u $INGRESS_HOST --trust-proxy true &
+npx -y @1mcp/agent --config /etc/1mcp/mcp.json --instructions-template /etc/1mcp/instructions-template.md --port 9090 --host 0.0.0.0 -u $INGRESS_HOST --trust-proxy true &
 /usr/bin/desktop_ready && /usr/bin/xfce4-terminal &

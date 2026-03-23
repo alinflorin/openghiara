@@ -13,3 +13,5 @@ data:
 {{ .Files.Get "files/scripts/mcp.json" | indent 4 }}
   user_script.sh: |
 {{ .Values.userScript | indent 4 }}
+  instructions-template.md: |
+{{ .Files.Get "files/scripts/instructions-template.md" | indent 4 }}
