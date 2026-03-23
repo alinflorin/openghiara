@@ -1,6 +1,6 @@
 mkdir -p /home/kasm-user/.markers
 mkdir -p /home/kasm-user/Software
-export PATH="/home/kasm-user/Software/nodejs/bin:$PATH"
+export PATH="/home/kasm-user/Software/nodejs/bin:/home/kasm-user/Software/uv/bin:$PATH"
 ARCH=$(uname -m)
 if [ ! -f /home/kasm-user/.markers/node ]; then
   case "$ARCH" in
@@ -40,6 +40,15 @@ if [ ! -f /home/kasm-user/.markers/python ]; then
   fi
   touch /home/kasm-user/.markers/python
   echo "Python 3.14 setup complete."
+fi
+if [ ! -f /home/kasm-user/.markers/uv ]; then
+  echo "Installing uv..."
+  curl -LsSf https://astral.sh/uv/install.sh | UV_INSTALL_DIR="/home/kasm-user/Software/uv" sh
+  if ! grep -q "Software/uv" /home/kasm-user/.bashrc; then
+    echo 'export PATH="/home/kasm-user/Software/uv/bin:$PATH"' >> /home/kasm-user/.bashrc
+  fi
+  touch /home/kasm-user/.markers/uv
+  echo "uv/uvx setup complete."
 fi
 if [ ! -f /home/kasm-user/.markers/chromium ]; then
   echo "Installing Chromium via Playwright..."
