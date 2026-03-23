@@ -23,6 +23,8 @@ spec:
           env:
             - name: VNCOPTIONS
               value: "-disableBasicAuth"
+            - name: VNC_PW
+              value: ""
             - name: INGRESS_HOST
               value: 'https://{{ .Values.ingress.host }}'
           ports:
