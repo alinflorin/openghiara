@@ -8,6 +8,10 @@
     "shell": {
       "command": "npx",
       "args": ["-y", "bash-mcp"]
+    },
+    "chrome-browser": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp"]
     }
   }
 }
