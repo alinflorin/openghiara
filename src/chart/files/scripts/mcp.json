@@ -11,7 +11,21 @@
     },
     "chrome-browser": {
       "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp", "-e", "/home/kasm-user/Software/chromium/chrome"]
+      "args": [
+        "-y",
+        "chrome-devtools-mcp",
+        "-e",
+        "/home/kasm-user/Software/chromium/chrome"
+      ]
+    },
+    "vnc": {
+      "command": "npx",
+      "args": ["-y", "@hrrrsn/mcp-vnc"],
+      "env": {
+        "VNC_HOST": "localhost",
+        "VNC_PORT": "6901",
+        "VNC_PASSWORD": ""
+      }
     }
   }
 }
