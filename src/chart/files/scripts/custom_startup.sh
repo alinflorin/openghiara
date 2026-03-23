@@ -49,6 +49,12 @@ if [ ! -f /home/kasm-user/.markers/chromium ]; then
   if ! grep -q "Software/chromium" /home/kasm-user/.bashrc; then
     echo "export PATH=\"${CHROMIUM_DIR}:\$PATH\"" >> /home/kasm-user/.bashrc
   fi
+  # Create .desktop file and set as default browser
+  mkdir -p /home/kasm-user/.local/share/applications
+  printf '[Desktop Entry]\nType=Application\nName=Chromium\nExec=%s %%U\nMimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;\n' "${CHROMIUM_BIN}" \
+    > /home/kasm-user/.local/share/applications/chromium.desktop
+  xdg-settings set default-web-browser chromium.desktop
+
   touch /home/kasm-user/.markers/chromium
   echo "Chromium setup complete."
 fi
