@@ -25,6 +25,7 @@ spec:
               value: "-disableBasicAuth"
           ports:
             - containerPort: 6901
+            - containerPort: 9090
           volumeMounts:
             - name: data
               mountPath: /home/kasm-user
