@@ -10,12 +10,10 @@ spec:
   {{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className | quote }}
   {{- end }}
-  {{- if .Values.ingress.tls }}
   tls:
     - secretName: {{ include "openghiara.fullname" . }}-tls
       hosts:
         - {{ .Values.ingress.host | quote }}
-  {{- end }}
   rules:
     - host: {{ .Values.ingress.host | quote }}
       http:
