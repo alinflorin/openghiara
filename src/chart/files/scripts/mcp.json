@@ -11,7 +11,7 @@
     },
     "chrome-browser": {
       "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp"]
+      "args": ["-y", "chrome-devtools-mcp", "-e", "/home/kasm-user/Software/chromium/chromium-*/chrome-linux/chrome"]
     }
   }
 }
