@@ -52,5 +52,9 @@ if [ ! -f /home/kasm-user/.markers/chromium ]; then
   touch /home/kasm-user/.markers/chromium
   echo "Chromium setup complete."
 fi
+
+eval $(echo "" | gnome-keyring-daemon --unlock --daemonize --components=secrets 2>/dev/null)
+export GNOME_KEYRING_CONTROL GNOME_KEYRING_PID
+
 npx -y @1mcp/agent --config /etc/1mcp/mcp.json --port 9090 &
 /usr/bin/desktop_ready && /usr/bin/xfce4-terminal &
