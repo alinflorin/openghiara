@@ -55,8 +55,9 @@ if [ ! -f /home/kasm-user/.markers/chromium ]; then
   PLAYWRIGHT_BROWSERS_PATH=/home/kasm-user/Software/chromium npx -y playwright install chromium
   CHROMIUM_BIN=$(find /home/kasm-user/Software/chromium -path "*/chrome-linux/chrome" -type f | head -1)
   CHROMIUM_DIR=$(dirname "$CHROMIUM_BIN")
+  ln -sf "$CHROMIUM_BIN" /home/kasm-user/Software/chromium/chrome
   if ! grep -q "Software/chromium" /home/kasm-user/.bashrc; then
-    echo "export PATH=\"${CHROMIUM_DIR}:\$PATH\"" >> /home/kasm-user/.bashrc
+    echo 'export PATH="/home/kasm-user/Software/chromium:$PATH"' >> /home/kasm-user/.bashrc
   fi
   # Create .desktop file and set as default browser
   mkdir -p /home/kasm-user/.local/share/applications
