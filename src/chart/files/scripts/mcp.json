@@ -1,5 +1,4 @@
 {
-  "$schema": "https://docs.1mcp.app/schemas/v1.0.0/mcp-config.json",
   "mcpServers": {
     "filesystem": {
       "command": "npx",
