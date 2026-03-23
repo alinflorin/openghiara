@@ -1,14 +1,14 @@
 {
   "mcpServers": {
-    "filesystem": {
+    "fs": {
       "command": "npx",
       "args": ["-y", "mcp-filesystem-server"]
     },
-    "shell": {
+    "sh": {
       "command": "npx",
       "args": ["-y", "bash-mcp"]
     },
-    "chrome-browser": {
+    "chrome": {
       "command": "npx",
       "args": [
         "-y",
