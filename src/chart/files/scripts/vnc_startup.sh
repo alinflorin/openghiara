@@ -224,7 +224,7 @@ function start_kasmvnc (){
     fi
 
     KASM_PROCS['kasmvnc']=$(cat $HOME/.vnc/*${DISPLAY_NUM}.pid)
-    echo "AHAHAHAHAHHAHAHAHAHAHAHAHAHAHAHHAHAHAHHA"
+
     #Disable X11 Screensaver
     if [ "${DISTRO}" != "alpine" ]; then
     echo "Disabling X Screensaver Functionality"
