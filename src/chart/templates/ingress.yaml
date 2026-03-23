@@ -12,7 +12,9 @@ spec:
   {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
-    {{- toYaml .Values.ingress.tls | nindent 4 }}
+    - secretName: {{ include "openghiara.fullname" . }}-tls
+      hosts:
+        - {{ .Values.ingress.host | quote }}
   {{- end }}
   rules:
     - host: {{ .Values.ingress.host | quote }}

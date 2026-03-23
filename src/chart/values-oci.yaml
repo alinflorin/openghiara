@@ -6,7 +6,3 @@ ingress:
   className: "traefik"
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
-  tls:
-    - secretName: openghiara-tls
-      hosts:
-        - openghiara.alinflorin.isroot.in

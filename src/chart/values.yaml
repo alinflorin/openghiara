@@ -10,6 +10,5 @@ ingress:
   host: openghiara.example.com
   className: ""
   annotations: {}
-  tls: []
 userScript: |
   echo Hi
