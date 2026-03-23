@@ -7,7 +7,6 @@ persistence:
   size: 1Gi
   storageClass: ""
 ingress:
-  enabled: false
   host: openghiara.example.com
   className: ""
   annotations: {}

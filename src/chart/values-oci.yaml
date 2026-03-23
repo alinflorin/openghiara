@@ -2,7 +2,6 @@ environment: oci
 persistence:
   size: 10Gi
 ingress:
-  enabled: true
   host: openghiara.alinflorin.isroot.in
   className: "traefik"
   annotations:
