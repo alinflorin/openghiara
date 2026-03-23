@@ -3,8 +3,11 @@
   "mcpServers": {
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/kasm-user/Desktop"],
-      "tags": ["local", "files"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/kasm-user"]
+    },
+    "bash": {
+      "command": "npx",
+      "args": ["-y", "bash-mcp"]
     }
   }
 }
