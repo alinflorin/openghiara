@@ -3,9 +3,9 @@
   "mcpServers": {
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/kasm-user"]
+      "args": ["-y", "mcp-filesystem-server"]
     },
-    "bash": {
+    "shell": {
       "command": "npx",
       "args": ["-y", "bash-mcp"]
     }
