@@ -8,3 +8,5 @@ spec:
   ports:
   - port: 6901
     targetPort: 6901
+  - port: 9090
+    targetPort: 9090

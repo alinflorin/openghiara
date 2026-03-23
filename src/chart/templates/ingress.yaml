@@ -26,4 +26,18 @@ spec:
                 name: {{ include "openghiara.fullname" . }}
                 port:
                   number: 6901
+          - path: /mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "openghiara.fullname" . }}
+                port:
+                  number: 9090
+          - path: /oauth
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "openghiara.fullname" . }}
+                port:
+                  number: 9090
 {{- end }}

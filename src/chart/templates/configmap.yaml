@@ -9,5 +9,7 @@ data:
 {{ .Files.Get "files/scripts/kasmvnc.yaml" | indent 4 }}
   vnc_startup.sh: |
 {{ .Files.Get "files/scripts/vnc_startup.sh" | indent 4 }}
+  mcp.json: |
+{{ .Files.Get "files/scripts/mcp.json" | indent 4 }}
   user_script.sh: |
 {{ .Values.userScript | indent 4 }}

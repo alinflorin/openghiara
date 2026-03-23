@@ -39,7 +39,9 @@ spec:
             - name: configs
               mountPath: /etc/kasmvnc/kasmvnc.yaml
               subPath: kasmvnc.yaml
-
+            - name: configs
+              mountPath: /etc/1mcp/mcp.json
+              subPath: mcp.json
       volumes:
         - name: shm
           emptyDir:

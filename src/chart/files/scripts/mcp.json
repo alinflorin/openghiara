@@ -1,0 +1,10 @@
+{
+  "$schema": "https://docs.1mcp.app/schemas/v1.0.0/mcp-config.json",
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/kasm-user/Desktop"],
+      "tags": ["local", "files"]
+    }
+  }
+}
