@@ -25,6 +25,27 @@ spec:
                 name: {{ include "openghiara.fullname" . }}
                 port:
                   name: mcp
+          - path: /authorize
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "openghiara.fullname" . }}
+                port:
+                  name: mcp
+          - path: /oauth
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "openghiara.fullname" . }}
+                port:
+                  name: mcp
+          - path: /.well-known
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "openghiara.fullname" . }}
+                port:
+                  name: mcp
           - path: /
             pathType: Prefix
             backend:
