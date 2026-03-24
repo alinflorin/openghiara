@@ -25,6 +25,8 @@ spec:
               value: "-disableBasicAuth"
             - name: INGRESS_HOST
               value: 'https://{{ .Values.ingress.host }}'
+            - name: MCP_CLIENT_SECRET
+              value: {{ .Values.mcpClientSecret | quote }}
           ports:
             - containerPort: 6901
               name: vnc
@@ -50,6 +52,9 @@ spec:
             - name: configs
               mountPath: /etc/1mcp/instructions-template.md
               subPath: instructions-template.md
+            - name: configs
+              mountPath: /etc/mcp-proxy/mcp-proxy.js
+              subPath: mcp-proxy.js
       volumes:
         - name: shm
           emptyDir:

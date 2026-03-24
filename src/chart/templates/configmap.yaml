@@ -15,3 +15,5 @@ data:
 {{ .Values.userScript | indent 4 }}
   instructions-template.md: |
 {{ .Files.Get "files/scripts/instructions-template.md" | indent 4 }}
+  mcp-proxy.js: |
+{{ .Files.Get "files/scripts/mcp-proxy.js" | indent 4 }}

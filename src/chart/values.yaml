@@ -10,5 +10,6 @@ ingress:
   host: openghiara.example.com
   className: ""
   annotations: {}
+mcpClientSecret: "changeme"
 userScript: |
   echo Hi
