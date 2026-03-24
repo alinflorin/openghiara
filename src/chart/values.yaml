@@ -11,5 +11,6 @@ ingress:
   className: ""
   annotations: {}
 mcpClientSecret: "changeme"
+mcpTokenExpiry: 31536000
 userScript: |
   echo Hi

@@ -27,6 +27,8 @@ spec:
               value: 'https://{{ .Values.ingress.host }}'
             - name: MCP_CLIENT_SECRET
               value: {{ .Values.mcpClientSecret | quote }}
+            - name: MCP_TOKEN_EXPIRY
+              value: {{ .Values.mcpTokenExpiry | quote }}
           ports:
             - containerPort: 6901
               name: vnc

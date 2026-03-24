@@ -9,7 +9,7 @@ const CLIENT_SECRET = process.env.MCP_CLIENT_SECRET || 'changeme';
 const UPSTREAM_PORT = parseInt(process.env.UPSTREAM_PORT || '9191');
 const PROXY_PORT = parseInt(process.env.PROXY_PORT || '9090');
 const INGRESS_HOST = (process.env.INGRESS_HOST || 'http://localhost:9090').replace(/\/$/, '');
-const TOKEN_EXPIRY = 3600;
+const TOKEN_EXPIRY = parseInt(process.env.MCP_TOKEN_EXPIRY || '31536000');
 
 // In-memory stores (single-instance desktop, no persistence needed)
 const authCodes = new Map();   // code -> { clientId, redirectUri, codeChallenge, expiresAt }
