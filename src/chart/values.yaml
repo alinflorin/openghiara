@@ -9,7 +9,10 @@ persistence:
 ingress:
   host: openghiara.example.com
   className: ""
-  annotations: {}
+  vnc:
+    annotations: {}
+  mcp:
+    annotations: {}
 mcpClientSecret: "changeme"
 mcpTokenExpiry: 31536000
 userScript: |
