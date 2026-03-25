@@ -28,7 +28,7 @@ spec:
             - name: MCP_CLIENT_SECRET
               value: {{ .Values.mcpClientSecret | quote }}
             - name: MCP_TOKEN_EXPIRY
-              value: {{ .Values.mcpTokenExpiry | quote }}
+              value: {{ .Values.mcpTokenExpiry | int | quote }}
           ports:
             - containerPort: 6901
               name: vnc

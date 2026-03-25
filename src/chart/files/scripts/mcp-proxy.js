@@ -9,7 +9,7 @@ const CLIENT_SECRET = process.env.MCP_CLIENT_SECRET || 'changeme';
 const UPSTREAM_PORT = parseInt(process.env.UPSTREAM_PORT || '9191');
 const PROXY_PORT = parseInt(process.env.PROXY_PORT || '9090');
 const INGRESS_HOST = (process.env.INGRESS_HOST || 'http://localhost:9090').replace(/\/$/, '');
-const TOKEN_EXPIRY = parseInt(process.env.MCP_TOKEN_EXPIRY || '31536000');
+const TOKEN_EXPIRY = parseInt(process.env.MCP_TOKEN_EXPIRY || '2592000');
 
 // In-memory stores (single-instance desktop, no persistence needed)
 const authCodes = new Map();   // code -> { clientId, redirectUri, codeChallenge, scope, expiresAt }
@@ -133,6 +133,20 @@ const server = http.createServer(async (req, res) => {
 
   const [pathname, search] = req.url.split('?');
   const qp = new URLSearchParams(search || '');
+
+  // ── RFC 9728: OAuth 2.0 Protected Resource Metadata ────────────────────────
+  // Claude.ai hits this first on every (re)connect to discover the auth server
+  if (pathname === '/.well-known/oauth-protected-resource' ||
+      pathname.startsWith('/.well-known/oauth-protected-resource/')) {
+    const body = {
+      resource: INGRESS_HOST,
+      authorization_servers: [INGRESS_HOST],
+    };
+    log('META', `[${reqId}] serving protected-resource metadata`, body);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(body));
+    return;
+  }
 
   // ── OAuth metadata ──────────────────────────────────────────────────────────
   if (pathname === '/.well-known/oauth-authorization-server' ||
