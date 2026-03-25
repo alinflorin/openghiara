@@ -9,11 +9,9 @@ persistence:
 ingress:
   host: openghiara.example.com
   className: ""
-  vnc:
-    annotations: {}
-  mcp:
-    annotations: {}
-mcpClientSecret: "changeme"
+  annotations: {}
+mcpClientSecret: ""
+vncPassword: ""
 mcpTokenExpiry: 2592000
 userScript: |
   echo Hi

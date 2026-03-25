@@ -21,8 +21,8 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
-            - name: VNCOPTIONS
-              value: "-disableBasicAuth"
+            - name: VNC_PW
+              value: {{ .Values.vncPassword }}
             - name: INGRESS_HOST
               value: 'https://{{ .Values.ingress.host }}'
             - name: MCP_CLIENT_SECRET

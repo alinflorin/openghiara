@@ -4,11 +4,7 @@ persistence:
 ingress:
   host: openghiara.alinflorin.isroot.in
   className: "traefik"
-  vnc:
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt
-      traefik.ingress.kubernetes.io/router.middlewares: default-basic-auth@kubernetescrd
-  mcp:
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
 mcpClientSecret: "${CLIENT_SECRET}"
+vncPassword: "${VNC_PASSWORD}"

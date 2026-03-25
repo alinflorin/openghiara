@@ -1,8 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "openghiara.fullname" . }}-vnc
-  {{- with .Values.ingress.vnc.annotations }}
+  name: {{ include "openghiara.fullname" . }}
+  {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -25,27 +25,6 @@ spec:
                 name: {{ include "openghiara.fullname" . }}
                 port:
                   name: vnc
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: {{ include "openghiara.fullname" . }}-mcp
-  {{- with .Values.ingress.mcp.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-spec:
-  {{- if .Values.ingress.className }}
-  ingressClassName: {{ .Values.ingress.className | quote }}
-  {{- end }}
-  tls:
-    - secretName: {{ include "openghiara.fullname" . }}-tls
-      hosts:
-        - {{ .Values.ingress.host | quote }}
-  rules:
-    - host: {{ .Values.ingress.host | quote }}
-      http:
-        paths:
           - path: /mcp
             pathType: Prefix
             backend:

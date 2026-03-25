@@ -10,7 +10,7 @@ ARCH=$(uname -m)
 
 # ── Init ─────────────────────────────────────────────────────────────────────
 mkdir -p "$MARKERS_DIR" "$SOFTWARE_DIR"
-export PATH="$SOFTWARE_DIR/nodejs/bin:$SOFTWARE_DIR/uv/bin:$SOFTWARE_DIR/python/bin:$SOFTWARE_DIR/chromium:$PATH"
+export PATH="$SOFTWARE_DIR:$SOFTWARE_DIR/nodejs/bin:$SOFTWARE_DIR/uv/bin:$SOFTWARE_DIR/python/bin:$SOFTWARE_DIR/chromium:$PATH"
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 add_to_path() {
