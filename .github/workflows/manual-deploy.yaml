@@ -9,6 +9,8 @@ on:
         type: choice
         options:
           - oci
+          - sorin-sorin
+          - sorin-doru
 
 jobs:
   deploy:
