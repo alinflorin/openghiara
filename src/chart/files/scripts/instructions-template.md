@@ -6,7 +6,7 @@ You are running as `kasm-user`. You have no root access and no sudo privileges. 
 
 ## Available Tools
 
-You have three MCP servers at your disposal:
+You have four MCP servers at your disposal:
 
 ### `fs` — Read & Write Files
 Browse, read, create, and modify any file on the system.
