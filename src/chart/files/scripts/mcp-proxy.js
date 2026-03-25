@@ -12,8 +12,17 @@ const INGRESS_HOST = (process.env.INGRESS_HOST || 'http://localhost:9090').repla
 const TOKEN_EXPIRY = parseInt(process.env.MCP_TOKEN_EXPIRY || '31536000');
 
 // In-memory stores (single-instance desktop, no persistence needed)
-const authCodes = new Map();   // code -> { clientId, redirectUri, codeChallenge, expiresAt }
+const authCodes = new Map();   // code -> { clientId, redirectUri, codeChallenge, scope, expiresAt }
 const accessTokens = new Set();
+
+function log(tag, msg, data) {
+  const ts = new Date().toISOString();
+  if (data !== undefined) {
+    console.log(`[${ts}] [${tag}] ${msg}`, JSON.stringify(data));
+  } else {
+    console.log(`[${ts}] [${tag}] ${msg}`);
+  }
+}
 
 function base64url(buf) {
   return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
@@ -28,7 +37,10 @@ function generateToken() {
 }
 
 function verifyPkce(codeVerifier, codeChallenge) {
-  return base64url(sha256(codeVerifier)) === codeChallenge;
+  const computed = base64url(sha256(codeVerifier));
+  const ok = computed === codeChallenge;
+  if (!ok) log('PKCE', 'verification failed', { computed, expected: codeChallenge });
+  return ok;
 }
 
 function parseBody(req) {
@@ -95,6 +107,21 @@ function esc(str) {
 }
 
 const server = http.createServer(async (req, res) => {
+  const start = Date.now();
+  const reqId = base64url(crypto.randomBytes(4));
+
+  log('REQ', `[${reqId}] ${req.method} ${req.url}`, {
+    headers: {
+      authorization: req.headers['authorization']
+        ? req.headers['authorization'].replace(/Bearer\s+\S+/, 'Bearer [redacted]').replace(/Basic\s+\S+/, 'Basic [redacted]')
+        : undefined,
+      'content-type': req.headers['content-type'],
+      'mcp-session-id': req.headers['mcp-session-id'],
+    },
+  });
+
+  res.on('finish', () => log('RES', `[${reqId}] ${req.method} ${req.url} -> ${res.statusCode} (${Date.now() - start}ms)`));
+
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type, Mcp-Session-Id');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
@@ -110,8 +137,7 @@ const server = http.createServer(async (req, res) => {
   // ── OAuth metadata ──────────────────────────────────────────────────────────
   if (pathname === '/.well-known/oauth-authorization-server' ||
       pathname === '/.well-known/openid-configuration') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({
+    const body = {
       issuer: INGRESS_HOST,
       authorization_endpoint: `${INGRESS_HOST}/authorize`,
       token_endpoint: `${INGRESS_HOST}/oauth/token`,
@@ -119,13 +145,22 @@ const server = http.createServer(async (req, res) => {
       grant_types_supported: ['authorization_code'],
       code_challenge_methods_supported: ['S256'],
       token_endpoint_auth_methods_supported: ['client_secret_post', 'client_secret_basic'],
-    }));
+    };
+    log('META', `[${reqId}] serving metadata`, body);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(body));
     return;
   }
 
   // ── GET /authorize — show login form ────────────────────────────────────────
   if (pathname === '/authorize' && req.method === 'GET') {
     const params = Object.fromEntries(qp.entries());
+    log('AUTH', `[${reqId}] GET /authorize`, {
+      client_id: params.client_id,
+      redirect_uri: params.redirect_uri,
+      scope: params.scope,
+      code_challenge_method: params.code_challenge_method,
+    });
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(AUTHORIZE_HTML(params, null));
     return;
@@ -142,27 +177,34 @@ const server = http.createServer(async (req, res) => {
     const codeChallengeMethod = params.get('code_challenge_method');
     const state = params.get('state');
     const secret = params.get('secret');
+    const scope = params.get('scope') || '';
 
-    // Re-render form with error on bad secret or client_id
+    log('AUTH', `[${reqId}] POST /authorize`, {
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      scope,
+      code_challenge_method: codeChallengeMethod,
+      secret_ok: secret === CLIENT_SECRET,
+      client_id_ok: clientId === CLIENT_ID,
+    });
+
     if (clientId !== CLIENT_ID || secret !== CLIENT_SECRET) {
+      log('AUTH', `[${reqId}] invalid credentials`, { clientId, client_id_match: clientId === CLIENT_ID, secret_match: secret === CLIENT_SECRET });
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       res.end(AUTHORIZE_HTML(Object.fromEntries(params.entries()), 'Invalid secret. Try again.'));
       return;
     }
 
     if (!redirectUri || !codeChallenge || codeChallengeMethod !== 'S256') {
+      log('AUTH', `[${reqId}] bad request params`, { redirectUri: !!redirectUri, codeChallenge: !!codeChallenge, codeChallengeMethod });
       res.writeHead(400, { 'Content-Type': 'text/plain' });
       res.end('Bad request: missing redirect_uri, code_challenge or unsupported method');
       return;
     }
 
     const code = generateToken();
-    authCodes.set(code, {
-      clientId,
-      redirectUri,
-      codeChallenge,
-      expiresAt: Date.now() + 300_000, // 5 min
-    });
+    authCodes.set(code, { clientId, redirectUri, codeChallenge, scope, expiresAt: Date.now() + 300_000 });
+    log('AUTH', `[${reqId}] issued auth code, redirecting to callback`, { redirect_uri: redirectUri });
 
     const dest = new URL(redirectUri);
     dest.searchParams.set('code', code);
@@ -181,39 +223,65 @@ const server = http.createServer(async (req, res) => {
     let clientId = params.get('client_id');
     let clientSecret = params.get('client_secret');
     const basic = parseBasicAuth(req.headers['authorization']);
-    if (basic) { clientId = basic.clientId; clientSecret = basic.clientSecret; }
+    if (basic) {
+      log('TOKEN', `[${reqId}] using Basic auth credentials`);
+      clientId = basic.clientId;
+      clientSecret = basic.clientSecret;
+    }
 
     const grantType = params.get('grant_type');
     const code = params.get('code');
     const codeVerifier = params.get('code_verifier');
     const redirectUri = params.get('redirect_uri');
 
+    log('TOKEN', `[${reqId}] token request`, {
+      grant_type: grantType,
+      client_id: clientId,
+      client_id_ok: clientId === CLIENT_ID,
+      secret_ok: clientSecret === CLIENT_SECRET,
+      has_code: !!code,
+      has_code_verifier: !!codeVerifier,
+      redirect_uri: redirectUri,
+    });
+
     if (grantType !== 'authorization_code') {
+      log('TOKEN', `[${reqId}] unsupported grant_type: ${grantType}`);
       res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'unsupported_grant_type' }));
       return;
     }
 
     const entry = authCodes.get(code);
-    if (!entry || entry.expiresAt < Date.now()) {
+    if (!entry) {
+      log('TOKEN', `[${reqId}] code not found`);
       res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'invalid_grant' }));
+      res.end(JSON.stringify({ error: 'invalid_grant', error_description: 'code not found' }));
+      return;
+    }
+    if (entry.expiresAt < Date.now()) {
+      log('TOKEN', `[${reqId}] code expired`);
+      authCodes.delete(code);
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'invalid_grant', error_description: 'code expired' }));
       return;
     }
 
     if (clientId !== CLIENT_ID || clientSecret !== CLIENT_SECRET) {
+      log('TOKEN', `[${reqId}] invalid client credentials`);
       res.writeHead(401, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'invalid_client' }));
       return;
     }
 
     if (entry.redirectUri !== redirectUri) {
+      log('TOKEN', `[${reqId}] redirect_uri mismatch`, { stored: entry.redirectUri, received: redirectUri });
       res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'invalid_grant', error_description: 'redirect_uri mismatch' }));
       return;
     }
 
     if (!codeVerifier || !verifyPkce(codeVerifier, entry.codeChallenge)) {
+      log('TOKEN', `[${reqId}] PKCE failed`);
       res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'invalid_grant', error_description: 'PKCE verification failed' }));
       return;
@@ -223,21 +291,27 @@ const server = http.createServer(async (req, res) => {
 
     const accessToken = generateToken();
     accessTokens.add(accessToken);
-    // Auto-expire token from memory after TOKEN_EXPIRY
-    setTimeout(() => accessTokens.delete(accessToken), TOKEN_EXPIRY * 1000);
+    setTimeout(() => {
+      log('TOKEN', `token expired and removed from memory`);
+      accessTokens.delete(accessToken);
+    }, TOKEN_EXPIRY * 1000);
 
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({
+    const tokenResponse = {
       access_token: accessToken,
       token_type: 'Bearer',
       expires_in: TOKEN_EXPIRY,
-    }));
+      scope: entry.scope || 'claudeai',
+    };
+    log('TOKEN', `[${reqId}] issued access token`, { expires_in: TOKEN_EXPIRY, scope: tokenResponse.scope });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(tokenResponse));
     return;
   }
 
   // ── Everything else: require valid Bearer token, proxy to upstream ───────────
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    log('PROXY', `[${reqId}] missing/invalid Authorization header for ${req.url}`);
     res.writeHead(401, {
       'Content-Type': 'application/json',
       'WWW-Authenticate': `Bearer realm="${INGRESS_HOST}"`,
@@ -248,10 +322,13 @@ const server = http.createServer(async (req, res) => {
 
   const token = authHeader.slice(7);
   if (!accessTokens.has(token)) {
+    log('PROXY', `[${reqId}] unknown token for ${req.url} (total valid tokens: ${accessTokens.size})`);
     res.writeHead(401, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'invalid_token' }));
     return;
   }
+
+  log('PROXY', `[${reqId}] proxying ${req.method} ${req.url} -> 127.0.0.1:${UPSTREAM_PORT}`);
 
   const upstreamHeaders = Object.assign({}, req.headers, {
     host: `127.0.0.1:${UPSTREAM_PORT}`,
@@ -265,11 +342,13 @@ const server = http.createServer(async (req, res) => {
     method: req.method,
     headers: upstreamHeaders,
   }, (upRes) => {
+    log('PROXY', `[${reqId}] upstream responded ${upRes.statusCode}`);
     res.writeHead(upRes.statusCode, upRes.headers);
     upRes.pipe(res);
   });
 
   proxy.on('error', (e) => {
+    log('PROXY', `[${reqId}] upstream error: ${e.message}`);
     if (!res.headersSent) {
       res.writeHead(502, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'bad_gateway', message: e.message }));
@@ -280,6 +359,8 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PROXY_PORT, '0.0.0.0', () => {
-  console.log(`MCP OAuth2 proxy :${PROXY_PORT} -> upstream 127.0.0.1:${UPSTREAM_PORT}`);
-  console.log(`Authorization endpoint: ${INGRESS_HOST}/authorize`);
+  log('BOOT', `MCP OAuth2 proxy :${PROXY_PORT} -> upstream 127.0.0.1:${UPSTREAM_PORT}`);
+  log('BOOT', `Ingress host: ${INGRESS_HOST}`);
+  log('BOOT', `Token expiry: ${TOKEN_EXPIRY}s (${Math.round(TOKEN_EXPIRY / 86400)}d)`);
+  log('BOOT', `Client ID: ${CLIENT_ID}`);
 });
