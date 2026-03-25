@@ -15,7 +15,6 @@ ingress:
     annotations: {}
 mcpClientSecret: "changeme"
 mcpTokenExpiry: 2592000
-# Comma-separated list of MCP tool names to hide from clients (excluded from tools/list and tools/call)
 excludedMcpTools: ""
 userScript: |
   echo Hi
