@@ -5,7 +5,7 @@ const http = require('http');
 const crypto = require('crypto');
 const fs = require('fs');
 
-const exclTools = `control_1mcp_take_screenshot_with_ocr`;
+const exclTools = `control_1mcp_take_screenshot_with_ocr,chrome_1mcp_emulate,chrome_1mcp_lighthouse_audit,chrome_1mcp_performance_analyze_insight,chrome_1mcp_performance_start_trace,chrome_1mcp_performance_stop_trace,chrome_1mcp_take_memory_snapshot`;
 
 const EXCLUDED_TOOLS = new Set((exclTools || '').split(',').filter(Boolean));
 

@@ -24,7 +24,10 @@ Execute any shell command as if you were at a terminal. The following runtimes a
 Install additional tools using `npm install -g`, `uv tool install`, or `npx`/`uvx` for one-off usage.
 
 ### `chrome` — Control a Browser
-Automate Chromium via Chrome DevTools Protocol. Use this to navigate pages, take screenshots, fill forms, and research information online.
+Automate Chromium via Chrome DevTools Protocol. Use this to navigate pages, take screenshots, fill forms, click elements, and research information online.
+
+### `control` — Mouse, Keyboard & Screenshots
+Control the desktop directly: move and click the mouse, type text, press keys and key combinations, and take screenshots. Use this to interact with any application visible on the screen.
 
 ## Desktop
 

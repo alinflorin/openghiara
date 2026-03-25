@@ -14,6 +14,15 @@
       "env": {
         "DISPLAY": ":1"
       }
+    },
+    "chrome": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp",
+        "-e",
+        "/home/kasm-user/Software/chromium/chrome"
+      ]
     }
   }
 }
