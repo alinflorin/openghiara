@@ -3,6 +3,7 @@
 
 const http = require('http');
 const crypto = require('crypto');
+const fs = require('fs');
 
 const CLIENT_ID = 'llm';
 const CLIENT_SECRET = process.env.MCP_CLIENT_SECRET || 'changeme';
@@ -10,10 +11,44 @@ const UPSTREAM_PORT = parseInt(process.env.UPSTREAM_PORT || '9191');
 const PROXY_PORT = parseInt(process.env.PROXY_PORT || '9090');
 const INGRESS_HOST = (process.env.INGRESS_HOST || 'http://localhost:9090').replace(/\/$/, '');
 const TOKEN_EXPIRY = parseInt(process.env.MCP_TOKEN_EXPIRY || '2592000');
+const TOKENS_FILE = '/home/kasm-user/.markers/mcp-tokens.json';
 
-// In-memory stores (single-instance desktop, no persistence needed)
-const authCodes = new Map();   // code -> { clientId, redirectUri, codeChallenge, scope, expiresAt }
-const accessTokens = new Set();
+// Auth codes: in-memory only (short-lived, 5 min)
+const authCodes = new Map();
+
+// Access tokens: Map of token -> expiresAt (epoch ms), persisted to disk
+let accessTokens = new Map();
+
+function loadTokens() {
+  try {
+    const data = JSON.parse(fs.readFileSync(TOKENS_FILE, 'utf8'));
+    accessTokens = new Map(Object.entries(data).filter(([, exp]) => exp > now()));
+    log('BOOT', `loaded ${accessTokens.size} valid token(s) from disk`);
+  } catch (_) {
+    accessTokens = new Map();
+  }
+}
+
+function saveTokens() {
+  try {
+    fs.writeFileSync(TOKENS_FILE, JSON.stringify(Object.fromEntries(accessTokens)));
+  } catch (e) {
+    log('WARN', `failed to persist tokens: ${e.message}`);
+  }
+}
+
+function now() { return Math.floor(Date.now() / 1000); }
+
+function hasValidToken(token) {
+  const expiresAt = accessTokens.get(token);
+  if (expiresAt === undefined) return false;
+  if (now() > expiresAt) {
+    accessTokens.delete(token);
+    saveTokens();
+    return false;
+  }
+  return true;
+}
 
 function log(tag, msg, data) {
   const ts = new Date().toISOString();
@@ -106,6 +141,8 @@ function esc(str) {
   return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+loadTokens();
+
 const server = http.createServer(async (req, res) => {
   const start = Date.now();
   const reqId = base64url(crypto.randomBytes(4));
@@ -135,13 +172,9 @@ const server = http.createServer(async (req, res) => {
   const qp = new URLSearchParams(search || '');
 
   // ── RFC 9728: OAuth 2.0 Protected Resource Metadata ────────────────────────
-  // Claude.ai hits this first on every (re)connect to discover the auth server
   if (pathname === '/.well-known/oauth-protected-resource' ||
       pathname.startsWith('/.well-known/oauth-protected-resource/')) {
-    const body = {
-      resource: INGRESS_HOST,
-      authorization_servers: [INGRESS_HOST],
-    };
+    const body = { resource: INGRESS_HOST, authorization_servers: [INGRESS_HOST] };
     log('META', `[${reqId}] serving protected-resource metadata`, body);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(body));
@@ -203,7 +236,7 @@ const server = http.createServer(async (req, res) => {
     });
 
     if (clientId !== CLIENT_ID || secret !== CLIENT_SECRET) {
-      log('AUTH', `[${reqId}] invalid credentials`, { clientId, client_id_match: clientId === CLIENT_ID, secret_match: secret === CLIENT_SECRET });
+      log('AUTH', `[${reqId}] invalid credentials`);
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       res.end(AUTHORIZE_HTML(Object.fromEntries(params.entries()), 'Invalid secret. Try again.'));
       return;
@@ -304,11 +337,8 @@ const server = http.createServer(async (req, res) => {
     authCodes.delete(code);
 
     const accessToken = generateToken();
-    accessTokens.add(accessToken);
-    setTimeout(() => {
-      log('TOKEN', `token expired and removed from memory`);
-      accessTokens.delete(accessToken);
-    }, TOKEN_EXPIRY * 1000);
+    accessTokens.set(accessToken, now() + TOKEN_EXPIRY);
+    saveTokens();
 
     const tokenResponse = {
       access_token: accessToken,
@@ -316,7 +346,7 @@ const server = http.createServer(async (req, res) => {
       expires_in: TOKEN_EXPIRY,
       scope: entry.scope || 'claudeai',
     };
-    log('TOKEN', `[${reqId}] issued access token`, { expires_in: TOKEN_EXPIRY, scope: tokenResponse.scope });
+    log('TOKEN', `[${reqId}] issued access token`, { expires_in: TOKEN_EXPIRY, scope: tokenResponse.scope, total_tokens: accessTokens.size });
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(tokenResponse));
     return;
@@ -335,8 +365,8 @@ const server = http.createServer(async (req, res) => {
   }
 
   const token = authHeader.slice(7);
-  if (!accessTokens.has(token)) {
-    log('PROXY', `[${reqId}] unknown token for ${req.url} (total valid tokens: ${accessTokens.size})`);
+  if (!hasValidToken(token)) {
+    log('PROXY', `[${reqId}] invalid/expired token for ${req.url} (total valid tokens: ${accessTokens.size})`);
     res.writeHead(401, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'invalid_token' }));
     return;
@@ -377,4 +407,5 @@ server.listen(PROXY_PORT, '0.0.0.0', () => {
   log('BOOT', `Ingress host: ${INGRESS_HOST}`);
   log('BOOT', `Token expiry: ${TOKEN_EXPIRY}s (${Math.round(TOKEN_EXPIRY / 86400)}d)`);
   log('BOOT', `Client ID: ${CLIENT_ID}`);
+  log('BOOT', `Tokens file: ${TOKENS_FILE}`);
 });
