@@ -5,7 +5,9 @@ const http = require('http');
 const crypto = require('crypto');
 const fs = require('fs');
 
-const EXCLUDED_TOOLS = new Set((process.env.EXCLUDED_TOOLS || '').split(',').filter(Boolean));
+const exclTools = `control_1mcp_take_screenshot_with_ocr`;
+
+const EXCLUDED_TOOLS = new Set((exclTools || '').split(',').filter(Boolean));
 
 const CLIENT_ID = 'llm';
 const CLIENT_SECRET = process.env.MCP_CLIENT_SECRET || 'changeme';

@@ -8,7 +8,7 @@
       "command": "npx",
       "args": ["-y", "bash-mcp"]
     },
-    "computer-control-mcp": {
+    "control": {
       "command": "uvx",
       "args": ["computer-control-mcp@latest"],
       "env": {

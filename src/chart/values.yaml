@@ -15,6 +15,5 @@ ingress:
     annotations: {}
 mcpClientSecret: "changeme"
 mcpTokenExpiry: 2592000
-excludedMcpTools: ""
 userScript: |
   echo Hi

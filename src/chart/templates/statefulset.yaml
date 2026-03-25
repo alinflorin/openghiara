@@ -29,8 +29,6 @@ spec:
               value: {{ .Values.mcpClientSecret | quote }}
             - name: MCP_TOKEN_EXPIRY
               value: {{ .Values.mcpTokenExpiry | int | quote }}
-            - name: EXCLUDED_TOOLS
-              value: {{ .Values.excludedMcpTools | quote }}
             - name: DISPLAY
               value: ':1'
           ports:
