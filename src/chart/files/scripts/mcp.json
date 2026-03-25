@@ -18,8 +18,8 @@
       ]
     },
     "control": {
-      "command": "mcp-pyautogui",
-      "args": [""],
+      "command": "pyautogui-mcp",
+      "args": ["--transport", "stdio"],
       "env": {
         "DISPLAY": ":1"
       }
