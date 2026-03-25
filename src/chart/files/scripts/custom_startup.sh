@@ -56,12 +56,6 @@ if [ ! -f /home/kasm-user/.markers/uv ]; then
   touch /home/kasm-user/.markers/uv
   echo "uv/uvx setup complete."
 fi
-if [ ! -f /home/kasm-user/.markers/pyautogui-mcp ]; then
-  echo "Installing pyautogui-mcp..."
-  pip install pyautogui-mcp
-  touch /home/kasm-user/.markers/pyautogui-mcp
-  echo "pyautogui-mcp setup complete."
-fi
 if [ ! -f /home/kasm-user/.markers/chromium ]; then
   echo "Installing Chromium via Playwright..."
   PLAYWRIGHT_BROWSERS_PATH=/home/kasm-user/Software/chromium npx -y playwright install chromium

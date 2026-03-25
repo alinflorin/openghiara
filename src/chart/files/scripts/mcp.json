@@ -16,13 +16,6 @@
         "-e",
         "/home/kasm-user/Software/chromium/chrome"
       ]
-    },
-    "control": {
-      "command": "pyautogui-mcp",
-      "args": ["--transport", "stdio"],
-      "env": {
-        "DISPLAY": ":1"
-      }
     }
   }
 }
