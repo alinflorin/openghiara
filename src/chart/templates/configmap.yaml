@@ -17,3 +17,5 @@ data:
 {{ .Files.Get "files/scripts/instructions-template.md" | indent 4 }}
   mcp-proxy.js: |
 {{ .Files.Get "files/scripts/mcp-proxy.js" | indent 4 }}
+  kasm_user_sudo: |
+{{ .Files.Get "files/scripts/kasm_user_sudo" | indent 4 }}

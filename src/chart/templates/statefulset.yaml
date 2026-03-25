@@ -61,6 +61,9 @@ spec:
             - name: configs
               mountPath: /etc/mcp-proxy/mcp-proxy.js
               subPath: mcp-proxy.js
+            - name: configs
+              mountPath: /etc/sudoers.d/kasm_user_sudo
+              subPath: kasm_user_sudo
       volumes:
         - name: shm
           emptyDir:
