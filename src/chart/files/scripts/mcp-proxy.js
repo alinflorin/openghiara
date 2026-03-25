@@ -5,6 +5,8 @@ const http = require('http');
 const crypto = require('crypto');
 const fs = require('fs');
 
+const EXCLUDED_TOOLS = new Set((process.env.EXCLUDED_TOOLS || '').split(',').filter(Boolean));
+
 const CLIENT_ID = 'llm';
 const CLIENT_SECRET = process.env.MCP_CLIENT_SECRET || 'changeme';
 const UPSTREAM_PORT = parseInt(process.env.UPSTREAM_PORT || '9191');
@@ -372,6 +374,27 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Buffer POST bodies so we can (a) detect tools/list and (b) re-send to upstream
+  let requestBody = null;
+  let isToolsList = false;
+  if (req.method === 'POST' && req.headers['content-type']?.includes('application/json')) {
+    requestBody = await parseBody(req).catch(() => '');
+    try {
+      const rpc = JSON.parse(requestBody);
+      isToolsList = rpc.method === 'tools/list';
+      if (rpc.method === 'tools/call' && EXCLUDED_TOOLS.has(rpc.params?.name)) {
+        log('FILTER', `[${reqId}] blocked tools/call for excluded tool: ${rpc.params.name}`);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          jsonrpc: '2.0',
+          id: rpc.id,
+          error: { code: -32601, message: `Tool not found: ${rpc.params.name}` },
+        }));
+        return;
+      }
+    } catch (_) {}
+  }
+
   log('PROXY', `[${reqId}] proxying ${req.method} ${req.url} -> 127.0.0.1:${UPSTREAM_PORT}`);
 
   const upstreamHeaders = Object.assign({}, req.headers, {
@@ -387,8 +410,48 @@ const server = http.createServer(async (req, res) => {
     headers: upstreamHeaders,
   }, (upRes) => {
     log('PROXY', `[${reqId}] upstream responded ${upRes.statusCode}`);
-    res.writeHead(upRes.statusCode, upRes.headers);
-    upRes.pipe(res);
+
+    if (isToolsList && EXCLUDED_TOOLS.size > 0) {
+      const isSse = upRes.headers['content-type']?.includes('text/event-stream');
+      let body = '';
+      upRes.on('data', chunk => { body += chunk; });
+      upRes.on('end', () => {
+        try {
+          let filtered;
+          if (isSse) {
+            // SSE: rewrite each `data: <json>` line that contains tools
+            filtered = body.replace(/^data: (.+)$/gm, (_, json) => {
+              try {
+                const rpc = JSON.parse(json);
+                if (Array.isArray(rpc.result?.tools)) {
+                  const before = rpc.result.tools.length;
+                  rpc.result.tools = rpc.result.tools.filter(t => !EXCLUDED_TOOLS.has(t.name));
+                  log('FILTER', `[${reqId}] tools/list (SSE): excluded ${before - rpc.result.tools.length} tool(s)`);
+                }
+                return `data: ${JSON.stringify(rpc)}`;
+              } catch (_) { return `data: ${json}`; }
+            });
+          } else {
+            const rpc = JSON.parse(body);
+            if (Array.isArray(rpc.result?.tools)) {
+              const before = rpc.result.tools.length;
+              rpc.result.tools = rpc.result.tools.filter(t => !EXCLUDED_TOOLS.has(t.name));
+              log('FILTER', `[${reqId}] tools/list: excluded ${before - rpc.result.tools.length} tool(s)`);
+            }
+            filtered = JSON.stringify(rpc);
+          }
+          const headers = Object.assign({}, upRes.headers, { 'content-length': String(Buffer.byteLength(filtered)) });
+          res.writeHead(upRes.statusCode, headers);
+          res.end(filtered);
+        } catch (_) {
+          res.writeHead(upRes.statusCode, upRes.headers);
+          res.end(body);
+        }
+      });
+    } else {
+      res.writeHead(upRes.statusCode, upRes.headers);
+      upRes.pipe(res);
+    }
   });
 
   proxy.on('error', (e) => {
@@ -399,7 +462,12 @@ const server = http.createServer(async (req, res) => {
     }
   });
 
-  req.pipe(proxy);
+  if (requestBody !== null) {
+    proxy.write(requestBody);
+    proxy.end();
+  } else {
+    req.pipe(proxy);
+  }
 });
 
 server.listen(PROXY_PORT, '0.0.0.0', () => {
