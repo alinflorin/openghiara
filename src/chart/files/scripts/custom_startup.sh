@@ -1,6 +1,6 @@
 mkdir -p /home/kasm-user/.markers
 mkdir -p /home/kasm-user/Software
-export PATH="/home/kasm-user/Software/nodejs/bin:/home/kasm-user/Software/uv/bin:$PATH"
+export PATH="/home/kasm-user/Software/nodejs/bin:/home/kasm-user/Software/uv/bin:/home/kasm-user/Software/python/bin:/home/kasm-user/Software/chromium:$PATH"
 ARCH=$(uname -m)
 if [ ! -f /home/kasm-user/.markers/git ]; then
   git config --global user.name "OpenGhiara"
@@ -73,6 +73,13 @@ if [ ! -f /home/kasm-user/.markers/chromium ]; then
 
   touch /home/kasm-user/.markers/chromium
   echo "Chromium setup complete."
+fi
+
+if [ ! -f /home/kasm-user/.markers/pyautogui-mcp ]; then
+  echo "Installing pyautogui-mcp..."
+  pip install --python /home/kasm-user/Software/python/bin/python3 pyautogui-mcp
+  touch /home/kasm-user/.markers/pyautogui-mcp
+  echo "pyautogui-mcp setup complete."
 fi
 
 eval $(echo "" | gnome-keyring-daemon --unlock --daemonize --components=secrets 2>/dev/null)
