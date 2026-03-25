@@ -7,6 +7,10 @@
     "sh": {
       "command": "npx",
       "args": ["-y", "bash-mcp"]
+    },
+    "computer-control-mcp": {
+      "command": "uvx",
+      "args": ["computer-control-mcp@latest"]
     }
   }
 }

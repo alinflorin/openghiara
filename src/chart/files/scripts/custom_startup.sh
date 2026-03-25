@@ -63,16 +63,16 @@ setup_python() {
   esac
 
   PYTHON_URL=$(curl -sL "https://api.github.com/repos/indygreg/python-build-standalone/releases/latest" \
-    | grep -oP '"browser_download_url": "\Khttps://[^"]+cpython-3\.14[^"]+'"${PYTHON_ARCH}"'-install_only\.tar\.gz(?=")')
+    | grep -oP '"browser_download_url": "\Khttps://[^"]+cpython-3\.13[^"]+'"${PYTHON_ARCH}"'-install_only\.tar\.gz(?=")')
 
-  echo "Downloading Python 3.14 (${PYTHON_ARCH})..."
+  echo "Downloading Python 3.13 (${PYTHON_ARCH})..."
   curl -sL "$PYTHON_URL" -o /tmp/python.tar.gz
   tar -xf /tmp/python.tar.gz -C "$SOFTWARE_DIR/"
   rm /tmp/python.tar.gz
 
   add_to_path "$SOFTWARE_DIR/python/bin"
   mark_done python
-  echo "Python 3.14 setup complete."
+  echo "Python 3.13 setup complete."
 }
 
 # ── uv ────────────────────────────────────────────────────────────────────────
