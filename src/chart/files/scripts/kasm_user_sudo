@@ -1,1 +1,1 @@
-kasm_user ALL=(ALL) NOPASSWD: ALL
+kasm-user ALL=(ALL) NOPASSWD: ALL
