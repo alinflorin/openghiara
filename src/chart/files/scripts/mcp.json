@@ -10,7 +10,10 @@
     },
     "computer-control-mcp": {
       "command": "uvx",
-      "args": ["computer-control-mcp@latest"]
+      "args": ["computer-control-mcp@latest"],
+      "env": {
+        "DISPLAY": ":1"
+      }
     }
   }
 }
