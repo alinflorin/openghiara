@@ -8,14 +8,12 @@
       "command": "npx",
       "args": ["-y", "bash-mcp"]
     },
-    "chrome": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "chrome-devtools-mcp",
-        "-e",
-        "/home/kasm-user/Software/chromium/chrome"
-      ]
+    "control": {
+      "command": "uvx",
+      "args": ["ubuntu-desktop-control"],
+      "env": {
+        "DISPLAY": ":1"
+      }
     }
   }
 }
