@@ -75,11 +75,11 @@ if [ ! -f /home/kasm-user/.markers/chromium ]; then
   echo "Chromium setup complete."
 fi
 
-if [ ! -f /home/kasm-user/.markers/pyautogui-mcp ]; then
+if [ ! -f /home/kasm-user/.markers/mcp-pyautogui ]; then
   echo "Installing pyautogui-mcp..."
   pip install mcp-pyautogui Pillow pyscreenshot
-  touch /home/kasm-user/.markers/pyautogui-mcp
-  echo "pyautogui-mcp setup complete."
+  touch /home/kasm-user/.markers/mcp-pyautogui
+  echo "mcp-pyautogui setup complete."
 fi
 
 eval $(echo "" | gnome-keyring-daemon --unlock --daemonize --components=secrets 2>/dev/null)
