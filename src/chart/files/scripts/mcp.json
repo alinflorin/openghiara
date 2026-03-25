@@ -7,13 +7,6 @@
     "sh": {
       "command": "npx",
       "args": ["-y", "bash-mcp"]
-    },
-    "control": {
-      "command": "uvx",
-      "args": ["ubuntu-desktop-control"],
-      "env": {
-        "DISPLAY": ":1"
-      }
     }
   }
 }
