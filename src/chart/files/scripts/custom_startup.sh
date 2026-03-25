@@ -77,7 +77,7 @@ fi
 
 if [ ! -f /home/kasm-user/.markers/pyautogui-mcp ]; then
   echo "Installing pyautogui-mcp..."
-  pip install pyautogui-mcp Pillow pyscreenshot python-xlib
+  pip install mcp-pyautogui Pillow pyscreenshot
   touch /home/kasm-user/.markers/pyautogui-mcp
   echo "pyautogui-mcp setup complete."
 fi
