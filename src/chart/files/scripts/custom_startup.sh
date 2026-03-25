@@ -96,7 +96,6 @@ setup_chromium() {
   mkdir -p "$HOME_DIR/.local/share/applications"
   printf '[Desktop Entry]\nType=Application\nName=Chromium\nExec=%s %%U\nMimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;\n' \
     "$CHROMIUM_BIN" > "$HOME_DIR/.local/share/applications/chromium.desktop"
-  xdg-settings set default-web-browser chromium.desktop
 
   add_to_path "$SOFTWARE_DIR/chromium"
   mark_done chromium
