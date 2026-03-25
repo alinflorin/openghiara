@@ -3,7 +3,12 @@ network:
     pem_certificate: ${HOME}/.vnc/self.pem
     pem_key: ${HOME}/.vnc/self.pem
     require_ssl: false
+desktop:
+  resolution:
+    width: 1024
+    height: 768
+  allow_resize: false
+  pixel_depth: 24
 runtime_configuration:
-  allow_override_standard_vnc_server_settings: true
   allow_override_list:
     - pointer.enabled
