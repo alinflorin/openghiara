@@ -19,7 +19,6 @@ const TOKENS_FILE = '/home/kasm-user/.markers/mcp-tokens.json';
 
 // Auth codes: in-memory only (short-lived, 5 min)
 const authCodes = new Map();
-
 // Access tokens: Map of token -> expiresAt (epoch ms), persisted to disk
 let accessTokens = new Map();
 
