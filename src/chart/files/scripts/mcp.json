@@ -19,8 +19,8 @@
       "command": "npx",
       "args": [
         "-y",
-        "chrome-devtools-mcp",
-        "-e",
+        "@playwright/mcp@latest",
+        "--executable-path",
         "/home/kasm-user/Software/chromium/chrome"
       ]
     }

@@ -22,7 +22,7 @@ jobs:
     needs: [helm]
     strategy:
       matrix:
-        environment: [oci, sorin-sorin, sorin-doru]
+        environment: [oci]
     if: ${{ github.event.release.target_commitish == 'main' }}
     uses: ./.github/workflows/reusable-deploy.yaml
     with:
