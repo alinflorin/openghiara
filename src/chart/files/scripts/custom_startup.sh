@@ -10,7 +10,7 @@ ARCH=$(uname -m)
 
 # ── Init ─────────────────────────────────────────────────────────────────────
 mkdir -p "$MARKERS_DIR" "$SOFTWARE_DIR"
-export PATH="$SOFTWARE_DIR:$SOFTWARE_DIR/nodejs/bin:$SOFTWARE_DIR/uv/bin:$SOFTWARE_DIR/python/bin:$SOFTWARE_DIR/chromium:$PATH"
+export PATH="$SOFTWARE_DIR:$SOFTWARE_DIR/nodejs/bin:$SOFTWARE_DIR/uv/bin:$SOFTWARE_DIR/python/bin:$SOFTWARE_DIR/chromium:$SOFTWARE_DIR/kubectl:$SOFTWARE_DIR/helm:$PATH"
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 add_to_path() {
@@ -85,6 +85,48 @@ setup_uv() {
   echo "uv/uvx setup complete."
 }
 
+# ── kubectl ───────────────────────────────────────────────────────────────────
+setup_kubectl() {
+  case "$ARCH" in
+    x86_64)  KUBECTL_ARCH="amd64" ;;
+    aarch64) KUBECTL_ARCH="arm64" ;;
+    *)       echo "Unsupported architecture for kubectl: $ARCH"; exit 1 ;;
+  esac
+
+  KUBECTL_VERSION=$(curl -sL https://dl.k8s.io/release/stable.txt)
+  echo "Downloading kubectl ${KUBECTL_VERSION}..."
+  mkdir -p "$SOFTWARE_DIR/kubectl"
+  curl -sL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${KUBECTL_ARCH}/kubectl" \
+    -o "$SOFTWARE_DIR/kubectl/kubectl"
+  chmod +x "$SOFTWARE_DIR/kubectl/kubectl"
+
+  add_to_path "$SOFTWARE_DIR/kubectl"
+  mark_done kubectl
+  echo "kubectl setup complete."
+}
+
+# ── Helm ──────────────────────────────────────────────────────────────────────
+setup_helm() {
+  case "$ARCH" in
+    x86_64)  HELM_ARCH="amd64" ;;
+    aarch64) HELM_ARCH="arm64" ;;
+    *)       echo "Unsupported architecture for helm: $ARCH"; exit 1 ;;
+  esac
+
+  HELM_VERSION=$(curl -sL https://api.github.com/repos/helm/helm/releases/latest \
+    | grep -oP '"tag_name": "\K[^"]+')
+  echo "Downloading Helm ${HELM_VERSION}..."
+  curl -sL "https://get.helm.sh/helm-${HELM_VERSION}-linux-${HELM_ARCH}.tar.gz" -o /tmp/helm.tar.gz
+  tar -xf /tmp/helm.tar.gz -C /tmp/
+  mkdir -p "$SOFTWARE_DIR/helm"
+  mv "/tmp/linux-${HELM_ARCH}/helm" "$SOFTWARE_DIR/helm/helm"
+  rm -rf /tmp/helm.tar.gz "/tmp/linux-${HELM_ARCH}"
+
+  add_to_path "$SOFTWARE_DIR/helm"
+  mark_done helm
+  echo "Helm setup complete."
+}
+
 # ── Chromium ──────────────────────────────────────────────────────────────────
 setup_chromium() {
   echo "Installing Chromium via Playwright..."
@@ -103,10 +145,12 @@ setup_chromium() {
 }
 
 # ── Run setup steps (idempotent via markers) ──────────────────────────────────
-[ ! -f "$MARKERS_DIR/git" ]     && setup_git
-[ ! -f "$MARKERS_DIR/node" ]    && setup_node
-[ ! -f "$MARKERS_DIR/python" ]  && setup_python
-[ ! -f "$MARKERS_DIR/uv" ]      && setup_uv
+[ ! -f "$MARKERS_DIR/git" ]      && setup_git
+[ ! -f "$MARKERS_DIR/node" ]     && setup_node
+[ ! -f "$MARKERS_DIR/python" ]   && setup_python
+[ ! -f "$MARKERS_DIR/uv" ]       && setup_uv
+[ ! -f "$MARKERS_DIR/kubectl" ]  && setup_kubectl
+[ ! -f "$MARKERS_DIR/helm" ]     && setup_helm
 [ ! -f "$MARKERS_DIR/chromium" ] && setup_chromium
 
 # ── Runtime services ──────────────────────────────────────────────────────────

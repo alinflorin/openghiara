@@ -14,6 +14,7 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
+      serviceAccountName: {{ include "openghiara.fullname" . }}
       containers:
         - name: {{ include "openghiara.fullname" . }}
           image: kasmweb/core-ubuntu-noble:1.18.0-rolling-weekly
