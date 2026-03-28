@@ -127,6 +127,47 @@ setup_helm() {
   echo "Helm setup complete."
 }
 
+# ── kubeconfig ────────────────────────────────────────────────────────────────
+setup_kubeconfig() {
+  SA_DIR="/var/run/secrets/kubernetes.io/serviceaccount"
+
+  if [ ! -f "$SA_DIR/token" ]; then
+    echo "No SA token found, skipping kubeconfig setup."
+    mark_done kubeconfig
+    return
+  fi
+
+  TOKEN=$(cat "$SA_DIR/token")
+  CA=$(base64 -w0 < "$SA_DIR/ca.crt")
+  NAMESPACE=$(cat "$SA_DIR/namespace")
+
+  mkdir -p "$HOME_DIR/.kube"
+  cat > "$HOME_DIR/.kube/config" <<EOF
+apiVersion: v1
+kind: Config
+clusters:
+- cluster:
+    certificate-authority-data: ${CA}
+    server: https://kubernetes.default.svc
+  name: in-cluster
+contexts:
+- context:
+    cluster: in-cluster
+    namespace: ${NAMESPACE}
+    user: sa
+  name: default
+current-context: default
+users:
+- name: sa
+  user:
+    token: ${TOKEN}
+EOF
+  chmod 600 "$HOME_DIR/.kube/config"
+
+  mark_done kubeconfig
+  echo "kubeconfig setup complete."
+}
+
 # ── Chromium ──────────────────────────────────────────────────────────────────
 setup_chromium() {
   echo "Installing Chromium via Playwright..."
@@ -149,8 +190,9 @@ setup_chromium() {
 [ ! -f "$MARKERS_DIR/node" ]     && setup_node
 [ ! -f "$MARKERS_DIR/python" ]   && setup_python
 [ ! -f "$MARKERS_DIR/uv" ]       && setup_uv
-[ ! -f "$MARKERS_DIR/kubectl" ]  && setup_kubectl
-[ ! -f "$MARKERS_DIR/helm" ]     && setup_helm
+[ ! -f "$MARKERS_DIR/kubectl" ]    && setup_kubectl
+[ ! -f "$MARKERS_DIR/helm" ]       && setup_helm
+[ ! -f "$MARKERS_DIR/kubeconfig" ] && setup_kubeconfig
 [ ! -f "$MARKERS_DIR/chromium" ] && setup_chromium
 
 # ── Runtime services ──────────────────────────────────────────────────────────
