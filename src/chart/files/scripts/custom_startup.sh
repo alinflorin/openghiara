@@ -10,7 +10,7 @@ ARCH=$(uname -m)
 
 # ── Init ─────────────────────────────────────────────────────────────────────
 mkdir -p "$MARKERS_DIR" "$SOFTWARE_DIR"
-export PATH="$SOFTWARE_DIR:$SOFTWARE_DIR/nodejs/bin:$SOFTWARE_DIR/uv/bin:$SOFTWARE_DIR/python/bin:$SOFTWARE_DIR/chromium:$SOFTWARE_DIR/kubectl:$SOFTWARE_DIR/helm:$SOFTWARE_DIR/7z:$SOFTWARE_DIR/bubblewrap:$PATH"
+export PATH="/home/kasm-user/.local/bin:$SOFTWARE_DIR:$SOFTWARE_DIR/nodejs/bin:$SOFTWARE_DIR/uv/bin:$SOFTWARE_DIR/python/bin:$SOFTWARE_DIR/chromium:$SOFTWARE_DIR/kubectl:$SOFTWARE_DIR/helm:$SOFTWARE_DIR/7z:$SOFTWARE_DIR/bubblewrap:$PATH"
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 add_to_path() {
