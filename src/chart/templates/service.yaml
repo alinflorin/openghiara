@@ -9,6 +9,3 @@ spec:
   - port: 6901
     targetPort: vnc
     name: vnc
-  - port: 9090
-    targetPort: mcp
-    name: mcp

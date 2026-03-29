@@ -180,6 +180,9 @@ setup_chromium() {
   printf '[Desktop Entry]\nType=Application\nName=Chromium\nExec=%s %%U\nMimeType=text/html;text/xml;application/xhtml+xml;x-scheme-handler/http;x-scheme-handler/https;\n' \
     "$CHROMIUM_BIN" > "$HOME_DIR/.local/share/applications/chromium.desktop"
 
+  xdg-settings set default-web-browser chromium.desktop
+  xdg-mime default chromium.desktop x-scheme-handler/http x-scheme-handler/https text/html
+
   add_to_path "$SOFTWARE_DIR/chromium"
   mark_done chromium
   echo "Chromium setup complete."
@@ -200,13 +203,4 @@ export DISPLAY="${DISPLAY:-:1}"
 eval "$(echo "" | gnome-keyring-daemon --unlock --daemonize --components=secrets 2>/dev/null)"
 export GNOME_KEYRING_CONTROL GNOME_KEYRING_PID
 
-npx -y @1mcp/agent \
-  --config /etc/1mcp/mcp.json \
-  --instructions-template /etc/1mcp/instructions-template.md \
-  --port 9191 \
-  --host 127.0.0.1 \
-  -u "$INGRESS_HOST" \
-  --trust-proxy true &
-
-node /etc/mcp-proxy/mcp-proxy.js &
 /usr/bin/desktop_ready && /usr/bin/xfce4-terminal &
