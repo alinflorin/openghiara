@@ -169,6 +169,33 @@ EOF
   echo "kubeconfig setup complete."
 }
 
+# ── xdotool ───────────────────────────────────────────────────────────────────
+setup_xdotool() {
+  case "$ARCH" in
+    x86_64)  XDOTOOL_URL="http://archive.ubuntu.com/ubuntu/pool/universe/x/xdotool/xdotool_3.20160805.1-5build1_amd64.deb" ;;
+    aarch64) XDOTOOL_URL="http://ports.ubuntu.com/pool/universe/x/xdotool/xdotool_3.20160805.1-5build1_arm64.deb" ;;
+    *)       echo "Unsupported architecture for xdotool: $ARCH"; exit 1 ;;
+  esac
+
+  echo "Installing xdotool..."
+  curl -sL "$XDOTOOL_URL" -o /tmp/xdotool.deb
+  dpkg-deb -x /tmp/xdotool.deb "$SOFTWARE_DIR/xdotool"
+  rm /tmp/xdotool.deb
+
+  add_to_path "$SOFTWARE_DIR/xdotool/usr/bin"
+  mark_done xdotool
+  echo "xdotool setup complete."
+}
+
+# ── Claude Code ───────────────────────────────────────────────────────────────
+setup_claude_code() {
+  echo "Installing Claude Code..."
+  npm install -g @anthropic-ai/claude-code
+
+  mark_done claude_code
+  echo "Claude Code setup complete."
+}
+
 # ── Chromium ──────────────────────────────────────────────────────────────────
 setup_chromium() {
   echo "Installing Chromium via Playwright..."
@@ -196,6 +223,8 @@ setup_chromium() {
 [ ! -f "$MARKERS_DIR/helm" ]       && setup_helm
 [ ! -f "$MARKERS_DIR/kubeconfig" ] && setup_kubeconfig
 [ ! -f "$MARKERS_DIR/chromium" ]     && setup_chromium
+[ ! -f "$MARKERS_DIR/xdotool" ]      && setup_xdotool
+[ ! -f "$MARKERS_DIR/claude_code" ]  && setup_claude_code
 
 # ── Runtime services ──────────────────────────────────────────────────────────
 export DISPLAY="${DISPLAY:-:1}"
