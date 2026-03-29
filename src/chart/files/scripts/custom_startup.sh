@@ -10,7 +10,7 @@ ARCH=$(uname -m)
 
 # ── Init ─────────────────────────────────────────────────────────────────────
 mkdir -p "$MARKERS_DIR" "$SOFTWARE_DIR"
-export PATH="$SOFTWARE_DIR:$SOFTWARE_DIR/nodejs/bin:$SOFTWARE_DIR/uv/bin:$SOFTWARE_DIR/python/bin:$SOFTWARE_DIR/chromium:$SOFTWARE_DIR/kubectl:$SOFTWARE_DIR/helm:$PATH"
+export PATH="$SOFTWARE_DIR:$SOFTWARE_DIR/nodejs/bin:$SOFTWARE_DIR/uv/bin:$SOFTWARE_DIR/python/bin:$SOFTWARE_DIR/chromium:$SOFTWARE_DIR/kubectl:$SOFTWARE_DIR/helm:$SOFTWARE_DIR/7z:$PATH"
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 add_to_path() {
@@ -168,6 +168,28 @@ EOF
   echo "kubeconfig setup complete."
 }
 
+# ── 7-Zip ─────────────────────────────────────────────────────────────────────
+setup_7z() {
+  case "$ARCH" in
+    x86_64)  SEVENZ_ARCH="x64" ;;
+    aarch64) SEVENZ_ARCH="arm64" ;;
+    *)       echo "Unsupported architecture for 7z: $ARCH"; exit 1 ;;
+  esac
+
+  SEVENZ_VERSION=$(curl -sL "https://www.7-zip.org/download.html" \
+    | grep -oP '7z\K[0-9]+(?=-linux)' | head -1)
+  echo "Downloading 7-Zip ${SEVENZ_VERSION} (${SEVENZ_ARCH})..."
+  mkdir -p "$SOFTWARE_DIR/7z"
+  curl -sL "https://www.7-zip.org/a/7z${SEVENZ_VERSION}-linux-${SEVENZ_ARCH}.tar.xz" -o /tmp/7z.tar.xz
+  tar -xf /tmp/7z.tar.xz -C "$SOFTWARE_DIR/7z/"
+  ln -sf "$SOFTWARE_DIR/7z/7zzs" "$SOFTWARE_DIR/7z/7z"
+  rm /tmp/7z.tar.xz
+
+  add_to_path "$SOFTWARE_DIR/7z"
+  mark_done 7z
+  echo "7-Zip setup complete."
+}
+
 # ── Chromium ──────────────────────────────────────────────────────────────────
 setup_chromium() {
   echo "Installing Chromium via Playwright..."
@@ -196,6 +218,7 @@ setup_chromium() {
 [ ! -f "$MARKERS_DIR/kubectl" ]    && setup_kubectl
 [ ! -f "$MARKERS_DIR/helm" ]       && setup_helm
 [ ! -f "$MARKERS_DIR/kubeconfig" ] && setup_kubeconfig
+[ ! -f "$MARKERS_DIR/7z" ]       && setup_7z
 [ ! -f "$MARKERS_DIR/chromium" ] && setup_chromium
 
 # ── Runtime services ──────────────────────────────────────────────────────────
