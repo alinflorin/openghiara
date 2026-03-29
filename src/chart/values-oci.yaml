@@ -6,5 +6,4 @@ ingress:
   className: "traefik"
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
-mcpClientSecret: "${CLIENT_SECRET}"
 vncPassword: "${VNC_PASSWORD}"

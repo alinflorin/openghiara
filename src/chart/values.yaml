@@ -10,7 +10,6 @@ ingress:
   host: openghiara.example.com
   className: ""
   annotations: {}
-mcpClientSecret: ""
 vncPassword: ""
 mcpTokenExpiry: 2592000
 userScript: |
