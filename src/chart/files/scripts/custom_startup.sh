@@ -230,4 +230,4 @@ setup_chromium() {
 export DISPLAY="${DISPLAY:-:1}"
 eval "$(echo "" | gnome-keyring-daemon --unlock --daemonize --components=secrets 2>/dev/null)"
 export GNOME_KEYRING_CONTROL GNOME_KEYRING_PID
-/usr/bin/desktop_ready && true &
+/usr/bin/desktop_ready && /usr/bin/xfce4-terminal &
