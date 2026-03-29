@@ -258,4 +258,4 @@ export DISPLAY="${DISPLAY:-:1}"
 eval "$(echo "" | gnome-keyring-daemon --unlock --daemonize --components=secrets 2>/dev/null)"
 export GNOME_KEYRING_CONTROL GNOME_KEYRING_PID
 sudo ln -s "${XDG_CONFIG_HOME:-$HOME/.config}/Claude/local-agent-mode-sessions/sessions" /sessions
-/usr/bin/desktop_ready && /usr/bin/xfce4-terminal &
+/usr/bin/desktop_ready && /home/kasm-user/.local/bin/claude-cowork &
