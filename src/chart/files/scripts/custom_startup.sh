@@ -169,59 +169,6 @@ EOF
   echo "kubeconfig setup complete."
 }
 
-# ── 7-Zip ─────────────────────────────────────────────────────────────────────
-setup_7z() {
-  case "$ARCH" in
-    x86_64)  SEVENZ_ARCH="x64" ;;
-    aarch64) SEVENZ_ARCH="arm64" ;;
-    *)       echo "Unsupported architecture for 7z: $ARCH"; exit 1 ;;
-  esac
-
-  SEVENZ_VERSION=$(curl -sL "https://www.7-zip.org/download.html" \
-    | grep -oP '7z\K[0-9]+(?=-linux)' | head -1)
-  echo "Downloading 7-Zip ${SEVENZ_VERSION} (${SEVENZ_ARCH})..."
-  mkdir -p "$SOFTWARE_DIR/7z"
-  curl -sL "https://www.7-zip.org/a/7z${SEVENZ_VERSION}-linux-${SEVENZ_ARCH}.tar.xz" -o /tmp/7z.tar.xz
-  tar -xf /tmp/7z.tar.xz -C "$SOFTWARE_DIR/7z/"
-  ln -sf "$SOFTWARE_DIR/7z/7zzs" "$SOFTWARE_DIR/7z/7z"
-  rm /tmp/7z.tar.xz
-
-  add_to_path "$SOFTWARE_DIR/7z"
-  mark_done 7z
-  echo "7-Zip setup complete."
-}
-
-# ── Bubblewrap ────────────────────────────────────────────────────────────────
-setup_bubblewrap() {
-  case "$ARCH" in
-    x86_64)  BWRAP_ARCH="amd64" ;;
-    aarch64) BWRAP_ARCH="arm64" ;;
-    *)       echo "Unsupported architecture for bubblewrap: $ARCH"; exit 1 ;;
-  esac
-
-  echo "Installing bubblewrap..."
-  curl -sL "http://ports.ubuntu.com/pool/main/b/bubblewrap/bubblewrap_0.9.0-1build1_${BWRAP_ARCH}.deb" \
-    -o /tmp/bubblewrap.deb
-  dpkg-deb -x /tmp/bubblewrap.deb /tmp/bubblewrap-extract/
-  mkdir -p "$SOFTWARE_DIR/bubblewrap"
-  cp /tmp/bubblewrap-extract/usr/bin/bwrap "$SOFTWARE_DIR/bubblewrap/"
-  rm -rf /tmp/bubblewrap.deb /tmp/bubblewrap-extract
-
-  add_to_path "$SOFTWARE_DIR/bubblewrap"
-  mark_done bubblewrap
-  echo "Bubblewrap setup complete."
-}
-
-# ── Claude Cowork ─────────────────────────────────────────────────────────────
-setup_claude_cowork() {
-  echo "Installing claude-cowork..."
-  rm -rf "$SOFTWARE_DIR/claude-cowork"
-  git clone https://github.com/johnzfitch/claude-cowork-linux "$SOFTWARE_DIR/claude-cowork"
-  bash "$SOFTWARE_DIR/claude-cowork/install.sh"
-  mark_done claude_cowork
-  echo "claude-cowork setup complete."
-}
-
 # ── Chromium ──────────────────────────────────────────────────────────────────
 setup_chromium() {
   echo "Installing Chromium via Playwright..."
@@ -248,14 +195,10 @@ setup_chromium() {
 [ ! -f "$MARKERS_DIR/kubectl" ]    && setup_kubectl
 [ ! -f "$MARKERS_DIR/helm" ]       && setup_helm
 [ ! -f "$MARKERS_DIR/kubeconfig" ] && setup_kubeconfig
-[ ! -f "$MARKERS_DIR/7z" ]          && setup_7z
-[ ! -f "$MARKERS_DIR/bubblewrap" ]  && setup_bubblewrap
-[ ! -f "$MARKERS_DIR/claude_cowork" ] && setup_claude_cowork
 [ ! -f "$MARKERS_DIR/chromium" ]     && setup_chromium
 
 # ── Runtime services ──────────────────────────────────────────────────────────
 export DISPLAY="${DISPLAY:-:1}"
 eval "$(echo "" | gnome-keyring-daemon --unlock --daemonize --components=secrets 2>/dev/null)"
 export GNOME_KEYRING_CONTROL GNOME_KEYRING_PID
-sudo ln -s "${XDG_CONFIG_HOME:-$HOME/.config}/Claude/local-agent-mode-sessions/sessions" /sessions
-/usr/bin/desktop_ready && /home/kasm-user/.local/bin/claude-cowork &
+/usr/bin/desktop_ready && true &
