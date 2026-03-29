@@ -50,7 +50,7 @@ setup_node() {
   rm /tmp/nodejs.tar.xz
 
   add_to_path "$SOFTWARE_DIR/nodejs/bin"
-  add_to_path "$SOFTWARE_DIR/.local/bin"
+  add_to_path "/home/kasm-user/.local/bin"
   mark_done node
   echo "Node.js setup complete."
 }
