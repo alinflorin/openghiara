@@ -217,7 +217,7 @@ setup_claude_cowork() {
   echo "Installing claude-cowork..."
   rm -rf "$SOFTWARE_DIR/claude-cowork"
   git clone https://github.com/johnzfitch/claude-cowork-linux "$SOFTWARE_DIR/claude-cowork"
-
+  bash "$SOFTWARE_DIR/claude-cowork/install.sh"
   mark_done claude_cowork
   echo "claude-cowork setup complete."
 }
